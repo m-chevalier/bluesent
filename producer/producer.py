@@ -1,12 +1,9 @@
 from confluent_kafka import Producer
+from prometheus_client import Counter, Summary, start_http_server
+import websockets
 import time
 import string
 import asyncio
-import websockets
-from prometheus_client import Counter, Summary
-from prometheus_client import start_http_server
-start_http_server(8000)
-
 import os
 
 messages_processed = Counter('messages_processed_total', 'Total number of messages processed')
@@ -23,6 +20,8 @@ conf = {
     'bootstrap.servers': f'{KAFKA_BROKER}',
     'client.id': f'posts-producer'
 }
+
+start_http_server(8000)
 
 # Load allowed words from file
 with open('allowed-list.txt', 'r') as f:

@@ -67,7 +67,7 @@ Mistral AI
 Cohere
 AI21 Labs
 Stability AI
-TII (Technology Innovation Institute)
+TII
 xAI
 Baidu
 Alibaba
