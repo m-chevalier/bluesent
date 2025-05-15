@@ -25,7 +25,7 @@ start_http_server(8000)
 
 # Load allowed words from file
 with open('allowed-list.txt', 'r') as f:
-    allowed_words = set(f.read().splitlines())
+    allowed_words = set(f.read().lower().splitlines())
 
 producer = Producer(conf)
 
@@ -44,7 +44,7 @@ async def listen_to_websocket():
                 message = await websocket.recv()
                 start = time.time()
                 # Check if the message contains at least one allowed word
-                if any(word in message for word in allowed_words):
+                if any(word in message.lower() for word in allowed_words):
                     producer.produce(f"{KAFKA_OUTPUT_TOPIC}", message.encode('utf-8'), callback=delivery_report)
                     producer.poll(0)  # Poll to trigger delivery report
                     messages_processed.inc()
