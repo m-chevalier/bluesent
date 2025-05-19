@@ -75,12 +75,5 @@ services:
       - qdrant_storage:/qdrant/storage
     restart: unless-stopped
 
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-
 volumes:
   qdrant_storage: # Defines the named volume for Qdrant data
