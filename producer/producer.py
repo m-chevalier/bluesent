@@ -6,6 +6,7 @@ import string
 import asyncio
 import os
 import json
+import re
 
 messages_processed = Counter('messages_processed_total', 'Total number of messages processed')
 messages_deleted = Counter('messages_deleted_total', 'Total number of messages deleted')
@@ -59,19 +60,25 @@ async def listen_to_websocket():
                 start = time.time()
                 message_json = json.loads(message)
 
-                # Check if the message is a post creation
                 content = check_post(message_json)
-
                 if content:
                     content = content.lower()
-                    found_allowed_word = False
-                    for word in allowed_words:
-                        if word in content: # Basic split by punctuation and space
-                            found_allowed_word = True
+                    found_llm = None
+                    for llm in allowed_words:
+                        if re.search(rf'\b{re.escape(llm.lower())}\b', content):
+                            found_llm = llm
+                            print(f"LLM found: {llm}")
                             break
                     
-                    if found_allowed_word:
-                        producer.produce(f"{KAFKA_OUTPUT_TOPIC}", message.encode('utf-8'), callback=delivery_report)
+                    if found_llm:
+                        # Create headers with the matched LLM name
+                        headers = [('llm_name', found_llm.encode('utf-8'))]
+                        producer.produce(
+                            f"{KAFKA_OUTPUT_TOPIC}",
+                            message.encode('utf-8'),
+                            headers=headers,
+                            callback=delivery_report
+                        )
                         producer.poll(0)  # Poll to trigger delivery report
                         messages_processed.inc()
                     else:

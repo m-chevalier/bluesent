@@ -64,6 +64,9 @@ services:
     environment:
       - KAFKA_CLUSTERS_0_NAME=local
       - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - AUTH_TYPE="LOGIN_FORM"
+      - SPRING_SECURITY_USER_NAME=${KAFKA_UI_LOGIN}
+      - SPRING_SECURITY_USER_PASSWORD=${KAFKA_UI_PASSWORD}
 
   qdrant:
     image: qdrant/qdrant:latest
@@ -75,5 +78,32 @@ services:
       - qdrant_storage:/qdrant/storage
     restart: unless-stopped
 
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
 volumes:
   qdrant_storage: # Defines the named volume for Qdrant data
+  postgres_data: # Defines the named volume for Postgres data
+

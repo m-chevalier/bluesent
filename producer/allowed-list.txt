@@ -1,30 +1,25 @@
-OpenAI
 GPT-3
-GPT-4
-Anthropic
-Claude
-Google
-Bard
-DeepMind
-AlphaCode
-Meta
-LLaMA
-Hugging Face
-Mistral
-Falcon
-GPT-Neo
-GPT-J
-GPT
 GPT-4
 GPT-3.5
-GPT-3
 GPT-2
+Claude
+Claude-2
+Claude-3
+Bard
+Gemini
+Gemini-Pro
+Gemini-Ultra
+LLaMA
+LLaMA-2
+Mistral
+Mistral-7B
 Mixtral
-Gemini 1.5
-Gemini 1.0
-PaLM 2
+Mixtral-8x7B
+Falcon
+Falcon-40B
+GPT-Neo
+GPT-J
 PaLM
-Grok
+PaLM-2
 Grok-1
 Grok-0
-OpenAI
