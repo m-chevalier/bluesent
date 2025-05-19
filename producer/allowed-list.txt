@@ -10,102 +10,21 @@ AlphaCode
 Meta
 LLaMA
 Hugging Face
-Bloom
-Cohere
 Mistral
 Falcon
-EleutherAI
 GPT-Neo
 GPT-J
-BigScience
-AI21 Labs
-Jurassic
-Stability AI
 GPT
 GPT-4
 GPT-3.5
 GPT-3
 GPT-2
-Claude 3
-Claude 2
-Claude 1
-LLaMA 3
-LLaMA 2
-LLaMA 1
-Mistral 7B
 Mixtral
 Gemini 1.5
 Gemini 1.0
 PaLM 2
 PaLM
-Command R+
-Command R
-Cohere Command
-Jurassic-2
-Jurassic-1
-BLOOM
-Falcon 180B
-Falcon 40B
-Yi 34B
-XGen
-OPT
 Grok
 Grok-1
 Grok-0
-Ernie Bot
-Qwen
-InternLM
-Zephyr
-Phi-2
-TinyLlama
 OpenAI
-Anthropic
-Meta
-Google DeepMind
-Google Research
-Mistral AI
-Cohere
-AI21 Labs
-Stability AI
-TII
-xAI
-Baidu
-Alibaba
-MosaicML
-Huawei
-Tencent
-Microsoft
-Salesforce
-IBM Research
-parameters
-model size
-context length
-throughput
-latency
-zero-shot
-few-shot
-fine-tuned
-pretrained
-token limit
-scaling laws
-benchmark
-MMLU
-HELLASWAG
-ARC
-BIG-Bench
-HumanEval
-LAMBADA
-win rate
-leaderboard
-hallucination rate
-alignment
-instruction tuning
-RLHF
-open-weight
-closed-weight
-token efficiency
-compression ratio
-eval harness
-inference speed
-quantization
-distillation

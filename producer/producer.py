@@ -5,6 +5,7 @@ import time
 import string
 import asyncio
 import os
+import json
 
 messages_processed = Counter('messages_processed_total', 'Total number of messages processed')
 messages_deleted = Counter('messages_deleted_total', 'Total number of messages deleted')
@@ -43,8 +44,23 @@ async def listen_to_websocket():
             try:
                 message = await websocket.recv()
                 start = time.time()
-                # Check if the message contains at least one allowed word
-                if any(word in message.lower() for word in allowed_words):
+                message_json = json.loads(message) 
+
+                content = message_json["commit"]["record"]["text"].lower()
+                # Check if the message contains at least one word
+                
+                found_allowed_word = False
+                for word in allowed_words:
+                    # Check for whole word match to avoid partial matches (e.g., "cat" in "caterpillar")
+                    # Using word boundaries or splitting the content into words
+                    # For simplicity here, we'll check if the word is in the content string.
+                    # A more robust check might involve regex with word boundaries or splitting content.
+                    if word in content: # Basic split by punctuation and space
+                        print(f"Allowed word found: {word}")
+                        found_allowed_word = True
+                        break
+                
+                if found_allowed_word:
                     producer.produce(f"{KAFKA_OUTPUT_TOPIC}", message.encode('utf-8'), callback=delivery_report)
                     producer.poll(0)  # Poll to trigger delivery report
                     messages_processed.inc()
