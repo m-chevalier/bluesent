@@ -39,6 +39,23 @@ def delivery_report(err, msg):
         print(f"Message delivery failed: {err}")
     
 def check_post(post):
+    """
+    Validates a post object and extracts the "text" field if the post meets specific criteria.
+
+    Args:
+        post (dict): A dictionary representing the post. Expected keys include:
+            - "kind" (str): Should be "commit".
+            - "commit" (dict): Should contain:
+                - "operation" (str): Should be "create".
+                - "record" (dict): Should contain the "text" field.
+
+    Returns:
+        str or bool: The "text" field from the "record" if the post is valid, otherwise False.
+
+    Edge Cases:
+        - Returns False if any of the expected keys are missing or have unexpected values.
+        - Assumes the "text" field in "record" is optional and may return None if it is absent.
+    """
     if post.get("kind") != "commit":
         return False
     
