@@ -1,5 +1,5 @@
 from confluent_kafka import Producer
-from prometheus_client import Counter, Summary, start_http_server
+from prometheus_client import Counter, Histogram, start_http_server
 import websockets
 import time
 import string
@@ -8,7 +8,7 @@ import os
 
 messages_processed = Counter('messages_processed_total', 'Total number of messages processed')
 messages_deleted = Counter('messages_deleted_total', 'Total number of messages deleted')
-process_duration = Summary('process_duration_seconds', 'Duration of message processing in seconds')
+process_duration = Histogram('process_duration_ms', 'Duration of message processing in milliseconds')
 
 KAFKA_OUTPUT_TOPIC = os.getenv('KAFKA_OUTPUT_TOPIC', 'llm-posts')
 KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
