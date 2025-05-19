@@ -37,6 +37,19 @@ def delivery_report(err, msg):
         #TODO: better logging
         print(f"Message delivery failed: {err}")
     
+def check_post(post):
+    if post.get("kind") != "commit":
+        return False
+    
+    commit = post.get("commit")
+    if not commit or commit.get("operation") != "create":
+        return False
+    
+    record = commit.get("record")
+    if not record:
+        return False
+        
+    return record.get("text")
 
 async def listen_to_websocket():
     async with websockets.connect(uri) as websocket:
@@ -44,28 +57,25 @@ async def listen_to_websocket():
             try:
                 message = await websocket.recv()
                 start = time.time()
-                message_json = json.loads(message) 
+                message_json = json.loads(message)
 
-                content = message_json["commit"]["record"]["text"].lower()
-                # Check if the message contains at least one word
-                
-                found_allowed_word = False
-                for word in allowed_words:
-                    # Check for whole word match to avoid partial matches (e.g., "cat" in "caterpillar")
-                    # Using word boundaries or splitting the content into words
-                    # For simplicity here, we'll check if the word is in the content string.
-                    # A more robust check might involve regex with word boundaries or splitting content.
-                    if word in content: # Basic split by punctuation and space
-                        print(f"Allowed word found: {word}")
-                        found_allowed_word = True
-                        break
-                
-                if found_allowed_word:
-                    producer.produce(f"{KAFKA_OUTPUT_TOPIC}", message.encode('utf-8'), callback=delivery_report)
-                    producer.poll(0)  # Poll to trigger delivery report
-                    messages_processed.inc()
-                else:
-                    messages_deleted.inc()
+                # Check if the message is a post creation
+                content = check_post(message_json)
+
+                if content:
+                    content = content.lower()
+                    found_allowed_word = False
+                    for word in allowed_words:
+                        if word in content: # Basic split by punctuation and space
+                            found_allowed_word = True
+                            break
+                    
+                    if found_allowed_word:
+                        producer.produce(f"{KAFKA_OUTPUT_TOPIC}", message.encode('utf-8'), callback=delivery_report)
+                        producer.poll(0)  # Poll to trigger delivery report
+                        messages_processed.inc()
+                    else:
+                        messages_deleted.inc()
 
             except websockets.ConnectionClosed as e:
                 print(f"Connection closed: {e}")
