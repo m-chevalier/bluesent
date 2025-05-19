@@ -47,21 +47,23 @@ async def listen_to_websocket():
                 message_json = json.loads(message) 
 
                 content = message_json["commit"]["record"]["text"].lower()
-                # Check if the message contains at least one word
                 
-                found_allowed_word = False
-                for word in allowed_words:
-                    # Check for whole word match to avoid partial matches (e.g., "cat" in "caterpillar")
-                    # Using word boundaries or splitting the content into words
-                    # For simplicity here, we'll check if the word is in the content string.
-                    # A more robust check might involve regex with word boundaries or splitting content.
-                    if word in content: # Basic split by punctuation and space
-                        print(f"Allowed word found: {word}")
-                        found_allowed_word = True
+                found_llm = None
+                for llm in allowed_words:
+                    if llm.lower() in content:
+                        found_llm = llm
+                        print(f"LLM found: {llm}")
                         break
                 
-                if found_allowed_word:
-                    producer.produce(f"{KAFKA_OUTPUT_TOPIC}", message.encode('utf-8'), callback=delivery_report)
+                if found_llm:
+                    # Create headers with the matched LLM name
+                    headers = [('llm_name', found_llm.encode('utf-8'))]
+                    producer.produce(
+                        f"{KAFKA_OUTPUT_TOPIC}",
+                        message.encode('utf-8'),
+                        headers=headers,
+                        callback=delivery_report
+                    )
                     producer.poll(0)  # Poll to trigger delivery report
                     messages_processed.inc()
                 else:
