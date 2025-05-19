@@ -50,7 +50,7 @@ async def listen_to_websocket():
                 
                 found_llm = None
                 for llm in allowed_words:
-                    if llm.lower() in content:
+                    if re.search(rf'\b{re.escape(llm.lower())}\b', content):
                         found_llm = llm
                         print(f"LLM found: {llm}")
                         break
