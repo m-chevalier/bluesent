@@ -6,7 +6,6 @@ import string
 import asyncio
 import os
 import json
-import re
 
 messages_processed = Counter('messages_processed_total', 'Total number of messages processed')
 messages_deleted = Counter('messages_deleted_total', 'Total number of messages deleted')
@@ -51,12 +50,7 @@ async def listen_to_websocket():
                 
                 found_llm = None
                 for llm in allowed_words:
-                    # Create a regex pattern that matches the LLM name with word boundaries
-                    # This ensures the LLM name is either:
-                    # - At the start of the text followed by a space or end of string
-                    # - After a space and followed by a space or end of string
-                    pattern = r'(^|\s)' + re.escape(llm.lower()) + r'($|\s)'
-                    if re.search(pattern, content):
+                    if re.search(rf'\b{re.escape(llm.lower())}\b', content):
                         found_llm = llm
                         print(f"LLM found: {llm}")
                         break
