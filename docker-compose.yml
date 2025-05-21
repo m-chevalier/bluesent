@@ -9,7 +9,8 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_OUTPUT_TOPIC: llm-posts
-    restart: always
+    restart: unless-stopped
+
 
   prometheus:
     image: prom/prometheus
@@ -17,6 +18,8 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    restart: unless-stopped
+
 
   grafana:
     image: grafana/grafana
@@ -24,6 +27,8 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
     ports:
       - "3000:3000"
+    restart: unless-stopped
+
 
   kafka:
       build: kafka/
@@ -40,6 +45,8 @@ services:
         KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
         KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
         KAFKA_NUM_PARTITIONS: 1
+      restart: unless-stopped
+
 
   kafka-init:
     image: apache/kafka:3.7.0
@@ -67,6 +74,7 @@ services:
       - AUTH_TYPE="LOGIN_FORM"
       - SPRING_SECURITY_USER_NAME=${KAFKA_UI_LOGIN}
       - SPRING_SECURITY_USER_PASSWORD=${KAFKA_UI_PASSWORD}
+    restart: unless-stopped
 
   qdrant:
     image: qdrant/qdrant:latest
