@@ -11,6 +11,19 @@ services:
       KAFKA_OUTPUT_TOPIC: llm-posts
     restart: unless-stopped
 
+  enrichment-agent:
+    depends_on:
+      - kafka-init
+      - qdrant
+      - postgres
+    build: ./enrichment-agent/
+    container_name: enrichment-agent
+    environment:
+      QDRANT_HOST: http://qdrant:6333
+      KAKFA_BROKER: kafka:9092
+      TOPIC_NAME: llm-posts
+    restart: unless-stopped
+
 
   prometheus:
     image: prom/prometheus
@@ -35,8 +48,10 @@ services:
       container_name: kafka
       ports:
         - "9092:9092"
+        - "9093:9093"
       environment:
         # Kafka KRaft Config
+        KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
         KAFKA_NODE_ID: 1
         KAFKA_PROCESS_ROLES: broker,controller
         KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
@@ -45,6 +60,7 @@ services:
         KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
         KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
         KAFKA_NUM_PARTITIONS: 1
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       restart: unless-stopped
 
 
@@ -58,6 +74,7 @@ services:
       echo 'Waiting for Kafka to be ready...' &&
       while ! nc -z kafka 9092; do sleep 1; done &&
       echo 'Kafka is up. Creating topics...' &&
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic __consumer_offsets --partitions 50 --replication-factor 1 &&
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-posts --replication-factor 1 --partitions 1 &&
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-embeddings-enriched --replication-factor 1 --partitions 1
       "
