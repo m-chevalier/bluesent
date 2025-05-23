@@ -2,6 +2,7 @@ services:
   producer:
     depends_on:
       - kafka-init
+      - kafka
     expose:
       - 8000
     build: producer/
@@ -10,6 +11,8 @@ services:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_OUTPUT_TOPIC: llm-posts
     restart: unless-stopped
+    volumes:
+      - producer_data:/app/data
 
   enrichment-agent:
     depends_on:
@@ -131,4 +134,5 @@ services:
 volumes:
   qdrant_storage: # Defines the named volume for Qdrant data
   postgres_data: # Defines the named volume for Postgres data
+  producer_data: # Defines the named volume for Producer data
 
