@@ -1,8 +1,16 @@
 import fasttext
 from argostranslate import package, translate
 
+_fasttext_model = None
+
+def _get_fasttext_model():
+    global _fasttext_model
+    if _fasttext_model is None:
+        _fasttext_model = fasttext.load_model("lid.176.ftz")
+    return _fasttext_model
+
 def detect_language_fasttext(text: str) -> str:
-    fasttext_model = fasttext.load_model("lid.176.ftz")
+    fasttext_model = _get_fasttext_model()
     prediction = fasttext_model.predict(text)[0][0]
     lang_code = prediction.replace("__label__", "")
     return lang_code
