@@ -50,17 +50,26 @@ try:
         
         print(f"Received message: {msg.value()}")
         post = json.loads(msg.value().decode('utf-8'))
-        text = get_text(post)
-        if text:
-            embeddings = model.encode(text)
-            did = post.get("did")
-            time_us = post.get("time_us")
-            payload = {
-                "did": did,
-                "time_us": time_us,
-                "text": text
-            }
-            insert_data(client, embeddings, did, payload)
+        
+        headers = {}
+        if msg.headers():
+            for key, value in msg.headers():
+                headers[key] = value.decode('utf-8') if value else None
+        
+        translated_message = headers["translated_message"]
+
+        embeddings = model.encode(translated_message)
+        did = post.get("did")
+        time_us = post.get("time_us")
+        lang = headers["lang"]
+        
+        payload = {
+            "did": did,
+            "time_us": time_us,
+            "text": translated_message,
+            "lang": lang
+        }
+        insert_data(client, embeddings, did, payload)
 except KeyboardInterrupt:
     pass
 finally:
