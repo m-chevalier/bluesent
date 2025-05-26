@@ -74,7 +74,7 @@ def translate_to_english(content):
     lang = detect_language_fasttext(content)
     if lang and lang != "en":
         try:
-            content = translate_to_english_from_lang(lang, content)
+            content = translate_to_english_from_lang(lang, content)[0]
         except Exception as e:
             print(f"Translation error: {e}")
             return content, lang
@@ -104,7 +104,7 @@ async def listen_to_websocket():
                     found_llm = detect_llm(content)
                     if found_llm:
                         translation = translate_to_english(content)     
-                        content = translation[0][0]
+                        content = translation[0]
                         lang = translation[1]         
 
                         # Create headers with the matched LLM name and language
