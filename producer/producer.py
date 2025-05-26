@@ -83,9 +83,12 @@ def translate_to_english(content):
 
 def detect_llm(content):
     found_llm = None
+    
     for llm in allowed_words:
-        if re.search(rf'\b{re.escape(llm.lower())}\b', content):
+        pattern = r'(^|\s)' + re.escape(llm.lower()) + r'($|\s)'
+        if re.search(pattern, content):
             found_llm = llm
+            print(f"LLM found: {llm}")
             break
     return found_llm
 
