@@ -18,10 +18,12 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY training_producer_script.py .
+COPY training_producer.py .
+
+COPY training_wordlist.txt .
 
 RUN chown -R appuser:appgroup /app
 
 USER appuser
 
-CMD ["python", "training_producer_script.py"]
+CMD ["python", "training_producer.py"]
