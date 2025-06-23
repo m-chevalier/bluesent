@@ -27,6 +27,21 @@ services:
       TOPIC_NAME: llm-posts
     restart: unless-stopped
 
+  trend-processor-agent:
+      depends_on:
+        - kafka-init
+        - enrichment-agent
+        - postgres
+      build: ./trend-processor-agent/
+      container_name: trend-processor-agent
+      environment:
+        KAKFA_BROKER: kafka:9092
+        TOPIC_NAME: enriched-llm-posts
+        DATABASE_HOST: ${POSTGRES_USER}
+        DATABASE_USER: ${POSTGRES_PASSWORD}
+        DATABASE_NAME: ${POSTGRES_DB}
+        DATABASE_PORT: 5432
+      restart: unless-stopped
 
   prometheus:
     image: prom/prometheus
@@ -117,6 +132,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres:/docker-entrypoint-initdb.d
     restart: unless-stopped
 
   pgadmin:
