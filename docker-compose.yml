@@ -26,6 +26,7 @@ services:
       KAKFA_BROKER: kafka:9092
       TOPIC_NAME: llm-posts
       OUTPUT_TOPIC: llm-embeddings-enriched
+      GEMINI_KEY: ${GEMINI_KEY}
     restart: unless-stopped
 
   trend-processor-agent:
