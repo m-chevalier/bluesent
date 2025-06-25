@@ -25,11 +25,13 @@ services:
       QDRANT_HOST: http://qdrant:6333
       KAKFA_BROKER: kafka:9092
       TOPIC_NAME: llm-posts
+      OUTPUT_TOPIC: llm-embeddings-enriched
     restart: unless-stopped
 
   trend-processor-agent:
       depends_on:
         - kafka-init
+        - kafka
         - enrichment-agent
         - postgres
       build: ./trend-processor-agent/
@@ -37,10 +39,12 @@ services:
       environment:
         KAKFA_BROKER: kafka:9092
         TOPIC_NAME: enriched-llm-posts
-        DATABASE_HOST: ${POSTGRES_USER}
-        DATABASE_USER: ${POSTGRES_PASSWORD}
+        DATABASE_HOST: postgres
         DATABASE_NAME: ${POSTGRES_DB}
+        DATABASE_USER: ${POSTGRES_USER}
+        DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
         DATABASE_PORT: 5432
+        INPUT_TOPIC: llm-embeddings-enriched
       restart: unless-stopped
 
   prometheus:
@@ -146,9 +150,12 @@ services:
     depends_on:
       - postgres
     restart: unless-stopped
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 
 volumes:
   qdrant_storage: # Defines the named volume for Qdrant data
   postgres_data: # Defines the named volume for Postgres data
   producer_data: # Defines the named volume for Producer data
+  pgadmin_data: # Defines the named volume for pgAdmin data
 

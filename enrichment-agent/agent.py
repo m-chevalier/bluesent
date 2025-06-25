@@ -1,22 +1,28 @@
 from sentence_transformers import SentenceTransformer
-from confluent_kafka import Consumer
+from confluent_kafka import Consumer, Producer
 from qdrant_client import QdrantClient
-from qdrant_utils import init_qdrant, insert_data
+from qdrant_utils import init_qdrant, insert_data, generate_uuid_from_string
 import json
+from agentgemini import get_analysis
+import logging
 
 import os
 QDRANT_HOST = os.getenv('QDRANT_HOST', 'http://qdrant:6333')
 KAKFA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
 TOPIC_NAME = os.getenv('TOPIC_NAME', 'llm-posts')
+KAFKA_OUTPUT_TOPIC = os.getenv('KAFKA_OUTPUT_TOPIC', 'llm-embeddings-enriched')
 
 
 conf = {
     'bootstrap.servers': f'{KAKFA_BROKER}',
     'group.id': 'enrichment-agent-group',
-    'auto.offset.reset': 'earliest'}
+    'auto.offset.reset': 'earliest'
+}
 
 consumer = Consumer(conf)
 consumer.subscribe([f'{TOPIC_NAME}'])
+
+producer = Producer(conf)
 
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 client = QdrantClient(url=f"{QDRANT_HOST}")
@@ -36,6 +42,10 @@ def get_text(post):
         return None
         
     return record.get("text")
+
+def delivery_report(err, msg):
+    if err is not None:
+        logging.error(f"Message delivery failed: {err}")
 
 try:
 
@@ -70,6 +80,30 @@ try:
             "lang": lang
         }
         insert_data(client, embeddings, did, payload)
+
+        # Compute sentiments
+
+        sentiments = get_analysis(translated_message)
+        if sentiments is None:
+            continue
+        data = {
+            "did": generate_uuid_from_string(did),
+            "text": translated_message,
+            "time": time_us,
+            "sentiments": sentiments
+        }
+
+        data = json.dumps(data)
+
+        producer.produce(
+            f"{KAFKA_OUTPUT_TOPIC}",
+            data.encode('utf-8'),
+            headers=headers,
+            callback=delivery_report
+        )
+        producer.poll(0)  # Poll to trigger delivery report
+        
+
 except KeyboardInterrupt:
     pass
 finally:

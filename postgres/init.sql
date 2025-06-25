@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.posts
 CREATE TABLE IF NOT EXISTS public.sentiment
 (
     post_uuid uuid NOT NULL,
+    llm_name character varying NOT NULL,
     sentiment_name character varying NOT NULL,
     sentiment_analysis character varying NOT NULL,
     PRIMARY KEY (post_uuid, sentiment_name)
