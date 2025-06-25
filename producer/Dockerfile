@@ -14,6 +14,7 @@ COPY producer.py .
 COPY allowed-list.txt .
 COPY lid.176.ftz .
 COPY translation.py .
+COPY utils.py .
 
 ENV ARGOS_PACKAGES_DIR=/app/data/argos-translate/packages/
 

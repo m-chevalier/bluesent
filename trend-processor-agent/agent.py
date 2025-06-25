@@ -28,16 +28,17 @@ try:
         post = json.loads(msg.value().decode('utf-8'))
         
         sentiments = post.get('sentiments', {})
-        id = post.get('did', None)
+        uuid = post.get('uuid', None)
         content = post.get('text', None)
-        date = post.get('time', None)
+        date = int(post.get('time', None))
 
-        if not id or not content or not date:
+        if not uuid or not content or not date:
             logging.error("Missing required fields in the post data")
             continue
         try:
-            insert_post(id, content, date, sentiments)
-        except:
+            insert_post(uuid, content, date, sentiments)
+        except Exception as e:
+            logging.error(f"Error inserting post into database: {e}")
             pass
 except KeyboardInterrupt:
     pass

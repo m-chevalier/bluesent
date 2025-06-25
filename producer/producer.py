@@ -2,12 +2,13 @@ from confluent_kafka import Producer
 from prometheus_client import Counter, Histogram, start_http_server
 import websockets
 import time
-import string
+import logging
 import asyncio
 import os
 import json
 import re
 from translation import translate_to_english_from_lang, download_packages, detect_language_fasttext
+from utils import generate_uuid_from_string
 
 messages_processed = Counter('messages_processed_total', 'Total number of messages processed')
 messages_deleted = Counter('messages_deleted_total', 'Total number of messages deleted')
@@ -36,8 +37,7 @@ producer = Producer(conf)
 # Callback function to handle delivery reports
 def delivery_report(err, msg):
     if err is not None:
-        #TODO: better logging
-        print(f"Message delivery failed: {err}")
+        logging.error(f"Message delivery failed: {err}")
     
 def check_post(post):
     """
@@ -76,7 +76,7 @@ def translate_to_english(content):
         try:
             content = translate_to_english_from_lang(lang, content)[0]
         except Exception as e:
-            print(f"Translation error: {e}")
+            logging.error(f"Translation error: {e}")
             return content, lang
     
     return content, lang
@@ -88,7 +88,6 @@ def detect_llm(content):
         pattern = r'(^|\s)' + re.escape(llm.lower()) + r'($|\s)'
         if re.search(pattern, content):
             found_llm = llm
-            print(f"LLM found: {llm}")
             break
     return found_llm
 
@@ -108,14 +107,20 @@ async def listen_to_websocket():
                     if found_llm:
                         translation = translate_to_english(content)     
                         content = translation[0]
-                        lang = translation[1]         
+                        lang = translation[1]
 
-                        # Create headers with the matched LLM name and language
-                        headers = [('llm_name', found_llm.encode('utf-8')), ('lang', (lang if lang else "").encode('utf-8')), ("translated_message", content.encode('utf-8'))]
+                        data = {
+                            "uuid": generate_uuid_from_string(message_json.get("did")),
+                            "did": message_json.get("did"),
+                            "llm_name": found_llm,
+                            "text": content,
+                            "lang": (lang if lang else ""),
+                            "date": str(message_json.get("time_us"))
+                        }
+                        
                         producer.produce(
                             f"{KAFKA_OUTPUT_TOPIC}",
-                            message.encode('utf-8'),
-                            headers=headers,
+                            json.dumps(data).encode('utf-8'),
                             callback=delivery_report
                         )
                         producer.poll(0)  # Poll to trigger delivery report
@@ -124,10 +129,10 @@ async def listen_to_websocket():
                         messages_deleted.inc()
 
             except websockets.ConnectionClosed as e:
-                print(f"Connection closed: {e}")
+                logging.error(f"Connection closed: {e}")
                 break
             except Exception as e:
-                print(f"Error: {e}")
+                logging.error(f"Error: {e}")
             finally:
                 end = time.time()
                 process_duration.observe(end - start)
