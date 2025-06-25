@@ -30,7 +30,11 @@ try:
         sentiments = post.get('sentiments', {})
         uuid = post.get('uuid', None)
         content = post.get('text', None)
-        date = int(post.get('time', None))
+        try:
+            date = int(post.get('time', None))
+        except (TypeError, ValueError):
+            logging.error("Invalid or missing 'time' field in the post data")
+            date = None
 
         if not uuid or not content or not date:
             logging.error("Missing required fields in the post data")
