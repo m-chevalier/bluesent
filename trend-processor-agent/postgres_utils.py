@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2.extras import execute_batch
 import os
+from datetime import datetime, timedelta
 
 # Import environment variables for database connection
 DATABASE_NAME = os.getenv("DATABASE_NAME", "bluesent")
@@ -9,6 +10,10 @@ DATABASE_USER = os.getenv("DATABASE_USER", "bluesent-user")
 DATABASE_PORT = os.getenv("DATABASE_PORT", "5432")
 
 conn_ = None
+
+def convert_to_timestamp(date_str):
+    timestamp = datetime(1970, 1, 1) + timedelta(microseconds=date_str)
+    return timestamp
 
 def get_connection():
     global conn_
@@ -21,14 +26,15 @@ def insert_post(id, content, date, sentiment_analysis):
     with conn.cursor() as cur:
         
         query_post = """INSERT INTO posts (uuid, content, date) VALUES (%s, %s, %s)"""
-        query_dimension = """INSERT INTO sentiment (post_uuid, sentiment_name, sentiment_analysis) VALUES (%s, %s, %s)"""
+        query_dimension = """INSERT INTO sentiment (post_uuid, llm_name, sentiment_name, sentiment_analysis) VALUES (%s, %s, %s, %s)"""
 
         data = []
 
-        cur.execute(query_post, (id, content, date))
+        cur.execute(query_post, (id, content, convert_to_timestamp(date)))
 
-        for sentiment in sentiment_analysis:
-            data.append((id, sentiment['sentiment_name'], sentiment['sentiment_analysis']))
+        for llm, analysis in sentiment_analysis.items():
+            for sentiment in analysis:
+                data.append((id, llm, sentiment['sentiment_name'], sentiment['sentiment_analysis']))
 
         execute_batch(cur, query_dimension, data)
         conn.commit()
