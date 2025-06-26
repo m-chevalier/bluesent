@@ -16,10 +16,10 @@ KAFKA_OUTPUT_TOPIC = os.getenv('KAFKA_OUTPUT_TOPIC', 'llm-embeddings-enriched')
 
 start_http_server(8000)  # Start Prometheus metrics server
 
-messages_processed = Counter('messages_processed_total', 'Total number of messages processed')
-messages_rejected = Counter('messages_rejected_total', 'Total number of messages rejected by the LLM')
-process_duration = Histogram('process_duration_ms', 'Duration of message processing in milliseconds')
-tokens_consumed = Histogram('tokens_consumed_total', 'Total token consumed')
+messages_processed = Counter('enrichment_agent_messages_processed_total', 'Total number of messages processed')
+messages_rejected = Counter('enrichment_agent_messages_rejected_total', 'Total number of messages rejected by the LLM')
+process_duration = Histogram('enrichment_agent_process_duration_ms', 'Duration of message processing in milliseconds')
+tokens_consumed = Histogram('enrichment_agent_tokens_consumed_total', 'Total token consumed')
 
 conf = {
     'bootstrap.servers': f'{KAKFA_BROKER}',
