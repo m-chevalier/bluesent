@@ -50,6 +50,7 @@ services:
       restart: unless-stopped
 
   prometheus:
+    container_name: prometheus
     image: prom/prometheus
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
@@ -104,6 +105,7 @@ services:
       "
 
   kafka-ui:
+    container_name: kafka-ui
     depends_on:
       - kafka
     image: provectuslabs/kafka-ui:latest
