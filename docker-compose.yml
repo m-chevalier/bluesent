@@ -27,6 +27,7 @@ services:
       TOPIC_NAME: llm-posts
       OUTPUT_TOPIC: llm-embeddings-enriched
       GEMINI_KEY: ${GEMINI_KEY}
+      MISTRAL_KEY: ${MISTRAL_KEY}
     restart: unless-stopped
 
   trend-processor-agent:

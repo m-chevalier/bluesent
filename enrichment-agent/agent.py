@@ -3,7 +3,7 @@ from confluent_kafka import Consumer, Producer
 from qdrant_client import QdrantClient
 from qdrant_utils import init_qdrant, insert_data
 import json
-from agentgemini import get_analysis
+from agentmistral import get_analysis
 import logging
 
 import os
