@@ -86,6 +86,8 @@ try:
             logging.info(f"Message {translated_message} rejected by LLM analysis")
             continue
 
+        payload_qdrant["sentiments"] = sentiments
+
         # Insert in Qdrant
         insert_data(client, embeddings, uuid, payload_qdrant)
 
