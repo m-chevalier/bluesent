@@ -83,6 +83,7 @@ try:
         sentiments, tokens_count = get_analysis(translated_message)
         if sentiments is None: # If no sentiments are returned, skip this message
             messages_rejected.inc()
+            logging.info(f"Message {translated_message} rejected by LLM analysis")
             continue
 
         # Insert in Qdrant
