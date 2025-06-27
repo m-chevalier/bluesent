@@ -9,6 +9,11 @@ from prometheus_client import Counter, Histogram, start_http_server
 import os
 import time
 
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+)
+
 QDRANT_HOST = os.getenv('QDRANT_HOST', 'http://qdrant:6333')
 KAKFA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
 TOPIC_NAME = os.getenv('TOPIC_NAME', 'llm-posts')

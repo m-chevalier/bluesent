@@ -10,6 +10,11 @@ import re
 from translation import translate_to_english_from_lang, download_packages, detect_language_fasttext
 from utils import generate_uuid_from_string
 
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+)
+
 messages_processed = Counter('messages_processed_total', 'Total number of messages processed')
 messages_deleted = Counter('messages_deleted_total', 'Total number of messages deleted')
 process_duration = Histogram('process_duration_ms', 'Duration of message processing in milliseconds')

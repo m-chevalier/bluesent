@@ -5,6 +5,11 @@ import os
 import logging
 from postgres_utils import insert_post
 
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+)
+
 KAKFA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
 TOPIC_NAME = os.getenv('INPUT_TOPIC', 'llm-embeddings-enriched')
 
