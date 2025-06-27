@@ -24,7 +24,6 @@ try:
     while True:
         msg = consumer.poll(1.0)
         if msg is None:
-            logging.info("No message received in this poll cycle")
             continue
         if msg.error():
             logging.error(f"Message received with error: {msg.error()}")
