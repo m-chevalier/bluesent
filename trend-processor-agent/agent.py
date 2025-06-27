@@ -6,7 +6,7 @@ import logging
 from postgres_utils import insert_post
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=os.getenv('LOG_LEVEL', 'DEBUG').upper(),
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
 )
 

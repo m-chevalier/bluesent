@@ -8,6 +8,7 @@ services:
     build: producer/
     container_name: producer
     environment:
+      LOG_LEVEL: ${LOG_LEVEL}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_OUTPUT_TOPIC: llm-posts
     restart: unless-stopped
@@ -22,6 +23,7 @@ services:
     build: ./enrichment-agent/
     container_name: enrichment-agent
     environment:
+      LOG_LEVEL: ${LOG_LEVEL}
       QDRANT_HOST: http://qdrant:6333
       KAKFA_BROKER: kafka:9092
       TOPIC_NAME: llm-posts
@@ -39,6 +41,7 @@ services:
       build: ./trend-processor-agent/
       container_name: trend-processor-agent
       environment:
+        LOG_LEVEL: ${LOG_LEVEL}
         KAKFA_BROKER: kafka:9092
         TOPIC_NAME: enriched-llm-posts
         DATABASE_HOST: postgres

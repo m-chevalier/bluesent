@@ -11,7 +11,7 @@ from translation import translate_to_english_from_lang, download_packages, detec
 from utils import generate_uuid_from_string
 
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=os.getenv('LOG_LEVEL', 'DEBUG').upper(),
     format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
 )
 
