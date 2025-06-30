@@ -103,7 +103,7 @@ services:
       echo 'Waiting for Kafka to be ready...' &&
       while ! nc -z kafka 9092; do sleep 1; done &&
       echo 'Kafka is up. Creating topics...' &&
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic __consumer_offsets --partitions 50 --replication-factor 1 &&
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic __consumer_offsets --partitions 20 --replication-factor 1 &&
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-posts --replication-factor 1 --partitions 1 &&
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-embeddings-enriched --replication-factor 1 --partitions 1
       "
