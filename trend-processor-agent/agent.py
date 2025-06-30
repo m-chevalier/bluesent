@@ -5,6 +5,11 @@ import os
 import logging
 from postgres_utils import insert_post
 
+logging.basicConfig(
+    level=os.getenv('LOG_LEVEL', 'DEBUG').upper(),
+    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+)
+
 KAKFA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
 TOPIC_NAME = os.getenv('INPUT_TOPIC', 'llm-embeddings-enriched')
 
@@ -19,7 +24,6 @@ try:
     while True:
         msg = consumer.poll(1.0)
         if msg is None:
-            logging.info("No message received in this poll cycle")
             continue
         if msg.error():
             logging.error(f"Message received with error: {msg.error()}")
