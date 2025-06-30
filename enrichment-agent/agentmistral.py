@@ -42,6 +42,7 @@ client = Mistral(MISTRAL_KEY)
 
 def analyse_post(text, retries=5):
     model="mistral-large-latest"
+    nl = "\n"
     sysprompt=f"""
 You are an assistant used to detect sentiments of several topics in texts. You will receive messages that may discuss large language models (LLMs). Your task is to analyze each message and return the sentiment for each relevant topic, per LLM mentioned.
 You must follow these rules:
@@ -57,7 +58,7 @@ Mistral
 Include version numbers if mentioned, e.g., "chatGPT 4.5". Standardize the name and append the version if found.
 
 For each detected LLM, assess sentiment for the following topics:
-{"\n".join(topics)}
+{nl.join(topics)}
 
 Sentiment values must be one of:
 - positive
