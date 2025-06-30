@@ -65,6 +65,8 @@ Sentiment values must be one of:
 - neutral
 - negative
 - not-present (if the topic is not discussed for that LLM)
+
+If you are certain that the message is not about LLMs, return an error status with an empty list of LLMs.
     """
 
     try:
@@ -121,3 +123,9 @@ def get_analysis(text):
     else:
         data = None
     return data, tokens_count
+
+
+# quantization BERT
+# manual annotation
+# sentiment analysis
+#   -> pour l'éval ?
