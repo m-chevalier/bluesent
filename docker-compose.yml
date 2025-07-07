@@ -36,7 +36,7 @@ services:
     container_name: enrichment-agent
     environment:
       QDRANT_HOST: http://qdrant:6333
-      KAKFA_BROKER: kafka:9092
+      KAFKA_BROKER: kafka:9092
       TOPIC_NAME: llm-posts
     restart: unless-stopped
 
@@ -146,8 +146,28 @@ services:
       - postgres
     restart: unless-stopped
 
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
 volumes:
   qdrant_storage: # Defines the named volume for Qdrant data
   postgres_data: # Defines the named volume for Postgres data
   producer_data: # Defines the named volume for Producer data
-
+  mongo_data:

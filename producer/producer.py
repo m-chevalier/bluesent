@@ -2,7 +2,6 @@ from confluent_kafka import Producer
 from prometheus_client import Counter, Histogram, start_http_server
 import websockets
 import time
-import string
 import asyncio
 import os
 import json
