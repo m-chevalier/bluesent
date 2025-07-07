@@ -123,7 +123,7 @@ def get_analysis(text):
 
             all_empty = True
             for llm in data:
-                if len(data[llm]) == 0:
+                if len(data[llm]) != 0:
                     all_empty = False
                     break
             if all_empty:
