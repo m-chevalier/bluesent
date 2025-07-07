@@ -120,12 +120,14 @@ def get_analysis(text):
                     "sentiment_analysis": sentiment
                 })
             data[llm_name] = llm_analysis
+
+            all_empty = True
+            for llm in data:
+                if len(data[llm]) == 0:
+                    all_empty = False
+                    break
+            if all_empty:
+                data = None
     else:
         data = None
     return data, tokens_count
-
-
-# quantization BERT
-# manual annotation
-# sentiment analysis
-#   -> pour l'éval ?
