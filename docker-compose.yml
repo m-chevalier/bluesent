@@ -21,6 +21,7 @@ services:
     build: producer/
     container_name: producer
     environment:
+      LOG_LEVEL: ${LOG_LEVEL}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_OUTPUT_TOPIC: llm-posts
     restart: unless-stopped
@@ -35,13 +36,37 @@ services:
     build: ./enrichment-agent/
     container_name: enrichment-agent
     environment:
+      LOG_LEVEL: ${LOG_LEVEL}
       QDRANT_HOST: http://qdrant:6333
       KAFKA_BROKER: kafka:9092
       TOPIC_NAME: llm-posts
+      OUTPUT_TOPIC: llm-embeddings-enriched
+      GEMINI_KEY: ${GEMINI_KEY}
+      MISTRAL_KEY: ${MISTRAL_KEY}
     restart: unless-stopped
 
+  trend-processor-agent:
+      depends_on:
+        - kafka-init
+        - kafka
+        - enrichment-agent
+        - postgres
+      build: ./trend-processor-agent/
+      container_name: trend-processor-agent
+      environment:
+        LOG_LEVEL: ${LOG_LEVEL}
+        KAKFA_BROKER: kafka:9092
+        TOPIC_NAME: enriched-llm-posts
+        DATABASE_HOST: postgres
+        DATABASE_NAME: ${POSTGRES_DB}
+        DATABASE_USER: ${POSTGRES_USER}
+        DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+        DATABASE_PORT: 5432
+        INPUT_TOPIC: llm-embeddings-enriched
+      restart: unless-stopped
 
   prometheus:
+    container_name: prometheus
     image: prom/prometheus
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
@@ -54,6 +79,7 @@ services:
     image: grafana/grafana
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
     ports:
       - "3000:3000"
     restart: unless-stopped
@@ -91,13 +117,14 @@ services:
       echo 'Waiting for Kafka to be ready...' &&
       while ! nc -z kafka 9092; do sleep 1; done &&
       echo 'Kafka is up. Creating topics...' &&
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic __consumer_offsets --partitions 50 --replication-factor 1 &&
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic __consumer_offsets --partitions 20 --replication-factor 1 &&
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-posts --replication-factor 1 --partitions 1 &&
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-embeddings-enriched --replication-factor 1 --partitions 1 &&
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm_training_data_raw --replication-factor 1 --partitions 1
       "
 
   kafka-ui:
+    container_name: kafka-ui
     depends_on:
       - kafka
     image: provectuslabs/kafka-ui:latest
@@ -132,6 +159,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./postgres:/docker-entrypoint-initdb.d
     restart: unless-stopped
 
   pgadmin:
@@ -145,6 +173,8 @@ services:
     depends_on:
       - postgres
     restart: unless-stopped
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 
   mongo:
     image: mongo:latest
@@ -170,4 +200,7 @@ volumes:
   qdrant_storage: # Defines the named volume for Qdrant data
   postgres_data: # Defines the named volume for Postgres data
   producer_data: # Defines the named volume for Producer data
+  pgadmin_data: # Defines the named volume for pgAdmin data
+  grafana_data: # Defines the named volume for grafana data
+
   mongo_data:

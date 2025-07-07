@@ -1,10 +1,14 @@
 global:
   scrape_interval: 15s
-# Monitoring producer
 scrape_configs:
+  # Monitoring producer
   - job_name: 'producer'
     static_configs:
       - targets: ['producer:8000']
+  # Monitoring enrichment-agent
+  - job_name: 'enrichment-agent'
+    static_configs:
+      - targets: ['enrichment-agent:8000']
       
 # Monitoring Kafka
   - job_name: 'kafka'
