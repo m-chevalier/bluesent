@@ -30,11 +30,14 @@ def insert_post(id, content, date, sentiment_analysis):
 
         data = []
 
-        cur.execute(query_post, (id, content, convert_to_timestamp(date)))
-
         for llm, analysis in sentiment_analysis.items():
             for sentiment in analysis:
                 data.append((id, llm, sentiment['sentiment_name'], sentiment['sentiment_analysis']))
-
-        execute_batch(cur, query_dimension, data)
-        conn.commit()
+        try:
+            cur.execute(query_post, (id, content, convert_to_timestamp(date)))
+            execute_batch(cur, query_dimension, data)
+            conn.commit()
+        except Exception as e:
+            print(f"Error inserting sentiment data: {e}")
+            conn.rollback()
+            return

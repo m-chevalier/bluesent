@@ -42,7 +42,32 @@ client = Mistral(MISTRAL_KEY)
 
 def analyse_post(text, retries=5):
     model="mistral-large-latest"
-    sysprompt=f"""You are an assistant used to detect sentiments of several topics in texts. You will receive messages supposed to talk about LLMs. In each message, you will need to analyze the text and return the sentiment for each topic based on the content of the text.\n    You will only detect LLM names and sentiments related to this LLM on these topics only: speed, cost, robustness, privacy. You will also only detect some LLMs, which are: mistral, gemini, claude, chatGPT, llama and bard. You can detect multiple versions and append them at the end of the name of the LLM in your answer, you can also reduce the name of the LLM to a more standard one, for example you can reduce "OpenAI's LLM" to "chatGPT".\n    You will return the sentiment for each topic among this sentiments: {", ".join(topics)}. If a topic is not present in the text, you will return the value "not-present" for that topic.\n    If you if you're certain that the post is not talking about any LLM return a status "error" and an empty list of llms. Otherwise, return a status "success" and a list of llms with their sentiments.\n    You will answer in json format according to the schema provided, with the following structure and without any additional text or formatting syntax"""
+    nl = "\n"
+    sysprompt=f"""
+You are an assistant used to detect sentiments of several topics in texts. You will receive messages that may discuss large language models (LLMs). Your task is to analyze each message and return the sentiment for each relevant topic, per LLM mentioned.
+You must follow these rules:
+
+Only detect the following LLMs (normalize variant names to a standard form):
+chatGPT
+Claude
+Gemini
+Bard
+LLaMA
+Mistral
+
+Include version numbers if mentioned, e.g., "chatGPT 4.5". Standardize the name and append the version if found.
+
+For each detected LLM, assess sentiment for the following topics:
+{nl.join(topics)}
+
+Sentiment values must be one of:
+- positive
+- neutral
+- negative
+- not-present (if the topic is not discussed for that LLM)
+
+If you are certain that the message is not about LLMs, return an error status with an empty list of LLMs.
+    """
 
     try:
         chat_response = client.chat.parse(
@@ -98,3 +123,9 @@ def get_analysis(text):
     else:
         data = None
     return data, tokens_count
+
+
+# quantization BERT
+# manual annotation
+# sentiment analysis
+#   -> pour l'éval ?
