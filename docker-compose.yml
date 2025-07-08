@@ -1,17 +1,4 @@
 services:
-  training-data-producer:
-    build:
-      context: ./training_producer/
-      dockerfile: Dockerfile
-    container_name: training_data_producer
-    depends_on:
-      - kafka-init
-      - kafka
-    environment:
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
-      KAFKA_OUTPUT_TOPIC: llm_training_data_raw
-    restart: 'no'
-
   producer:
     depends_on:
       - kafka-init
