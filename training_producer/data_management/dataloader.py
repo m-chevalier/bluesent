@@ -84,3 +84,10 @@ class DataLoader:
         """Closes the MongoDB connection."""
         self.client.close()
         print("MongoDB connection closed.")
+
+if __name__ == "__main__":
+    loader = DataLoader(db_name="bluesent_training")
+    loader.write_json_to_mongodb("scraped_bluesky_nonllm_posts.json", "random_posts")
+    df = loader.get_data_as_dataframe("random_posts")
+    print(df.head())
+    loader.close_connection()

@@ -10,7 +10,7 @@ load_dotenv()
 # --- Configuration ---
 MONGO_DB_URI = "mongodb://localhost:27017/"
 MONGO_DB_NAME = "bluesent_training"
-MONGO_COLLECTION_NAME = "posts"
+MONGO_COLLECTION_NAME = "random_posts"
 OPENAI_MODEL = "gpt-4.1-mini"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
@@ -62,12 +62,17 @@ def main():
     dataloader = DataLoader(db_uri=MONGO_DB_URI, db_name=MONGO_DB_NAME)
     posts_df = dataloader.get_data_as_dataframe(MONGO_COLLECTION_NAME)
 
-    posts_df = posts_df.head(5000)
+    if len(posts_df) > 5000:
+        print("Warning: The DataFrame has more than 5000 rows. Only the first 5000 rows will be processed.")
+        posts_df = posts_df.head(5000)
+    
     if posts_df.empty:
         print("No data loaded from MongoDB. Exiting.")
         dataloader.close_connection()
         return
 
+    # Add a new column to the DataFrame for the label
+    posts_df['is_llm_related'] = None
 
     # Filter out posts that already have the 'is_llm_related' label
     unlabeled_df = posts_df[posts_df['is_llm_related'].isnull()].copy()

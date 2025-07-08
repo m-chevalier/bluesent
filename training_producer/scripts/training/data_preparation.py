@@ -1,17 +1,17 @@
 import pandas as pd
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
-def connect_to_mongodb_and_load_data(label: str):
+def connect_to_mongodb_and_load_data(label: str, collection_name: str = "posts"):
     """
     Connects to the MongoDB database, loads the data that has the specified label,
     and returns a DataFrame with the 'text' and label columns.
+    :param collection_name: name of the collection to get data from
     :param label: The name of the label column to filter by.
     :return: A pandas DataFrame with 'text' and label columns.
     """
     # --- Configuration ---
     db_uri = "mongodb://localhost:27017/"
     db_name = "bluesent_training"
-    collection_name = "posts"
     client = None
 
     try:

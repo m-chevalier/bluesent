@@ -1,6 +1,6 @@
 import torch
 
-MODEL_PATH = '../training/results/checkpoint-1500'
+MODEL_PATH = '../training/results'
 
 def load_model(model_path: str, device: str = None):
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
@@ -19,7 +19,7 @@ def predict(text: str, tokenizer, model, device: str):
         return_tensors="pt",
         padding=True,
         truncation=True,
-        max_length=512
+        max_length=256,
     ).to(device)
 
     # Model inference
@@ -27,13 +27,12 @@ def predict(text: str, tokenizer, model, device: str):
         outputs = model(**inputs)
 
     # Convert logits to probabilities
-    probabilities = torch.softmax(outputs.logits, dim=1)
-    return probabilities.cpu().numpy()
+    probabilities = torch.softmax(outputs.logits, dim=1).cpu().numpy()
 
+    prediction = torch.argmax(outputs.logits, dim=1).item()
+    return probabilities, 'llm related' if prediction == 1 else 'not llm related'
 
 if __name__ == '__main__':
     tokenizer, model, device = load_model(MODEL_PATH)
-    text = "Sometimes I really think that I would get myself in trouble if I used Claude for my assignment"
-    probabilities = predict(text, tokenizer, model, device)
-    print(probabilities)
+    model.push_to_hub('AWCO/llm-text-classifier')
 

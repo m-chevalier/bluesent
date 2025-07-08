@@ -1,3 +1,4 @@
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 from transformers import TrainingArguments, Trainer
@@ -10,9 +11,11 @@ import numpy as np
 import evaluate
 
 if __name__ == "__main__":
-    df = connect_to_mongodb_and_load_data("is_llm_related")
+    llm_posts_df = connect_to_mongodb_and_load_data("is_llm_related")
+    random_posts_df = connect_to_mongodb_and_load_data("is_llm_related", "random_posts")
+    llm_posts_df = llm_posts_df.head(5000)
 
-    df = df.head(5000)
+    df = pd.concat([llm_posts_df, random_posts_df], ignore_index=True)
     df = df[['text', 'is_llm_related']]
 
     num_labels = 2
