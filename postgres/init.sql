@@ -2,7 +2,7 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS public.posts
 (
-    uuid bigint NOT NULL,
+    uuid uuid NOT NULL,
     content character varying NOT NULL,
     date timestamp without time zone NOT NULL,
     PRIMARY KEY (uuid)
@@ -10,11 +10,11 @@ CREATE TABLE IF NOT EXISTS public.posts
 
 CREATE TABLE IF NOT EXISTS public.sentiment
 (
-    post_uuid bigint NOT NULL,
+    post_uuid uuid NOT NULL,
     llm_name character varying NOT NULL,
     sentiment_name character varying NOT NULL,
     sentiment_analysis character varying NOT NULL,
-    PRIMARY KEY (post_uuid, sentiment_name)
+    PRIMARY KEY (post_uuid, llm_name, sentiment_name)
 );
 
 ALTER TABLE IF EXISTS public.sentiment
