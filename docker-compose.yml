@@ -25,7 +25,7 @@ services:
     environment:
       LOG_LEVEL: ${LOG_LEVEL}
       QDRANT_HOST: http://qdrant:6333
-      KAKFA_BROKER: kafka:9092
+      KAFKA_BROKER: kafka:9092
       TOPIC_NAME: llm-posts
       OUTPUT_TOPIC: llm-embeddings-enriched
       GEMINI_KEY: ${GEMINI_KEY}
@@ -76,7 +76,7 @@ services:
       build: kafka/
       container_name: kafka
       ports:
-        - "9092:9092"
+        - "9092:29092"
         - "9093:9093"
       environment:
         # Kafka KRaft Config
@@ -84,9 +84,10 @@ services:
         KAFKA_NODE_ID: 1
         KAFKA_PROCESS_ROLES: broker,controller
         KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-        KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+        KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093
+        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9092
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+        KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
         KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
         KAFKA_NUM_PARTITIONS: 1
         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -105,7 +106,8 @@ services:
       echo 'Kafka is up. Creating topics...' &&
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic __consumer_offsets --partitions 20 --replication-factor 1 &&
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-posts --replication-factor 1 --partitions 1 &&
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-embeddings-enriched --replication-factor 1 --partitions 1
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-embeddings-enriched --replication-factor 1 --partitions 1 &&
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm_training_data_raw --replication-factor 1 --partitions 1
       "
 
   kafka-ui:
@@ -161,6 +163,26 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
+  mongo:
+    image: mongo:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
 volumes:
   qdrant_storage: # Defines the named volume for Qdrant data
   postgres_data: # Defines the named volume for Postgres data
@@ -168,3 +190,4 @@ volumes:
   pgadmin_data: # Defines the named volume for pgAdmin data
   grafana_data: # Defines the named volume for grafana data
 
+  mongo_data:

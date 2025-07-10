@@ -5,6 +5,7 @@ GPT-2
 Claude
 Claude-2
 Claude-3
+Claude-4
 Bard
 Gemini
 Gemini-Pro
@@ -21,5 +22,6 @@ GPT-Neo
 GPT-J
 PaLM
 PaLM-2
+Grok
 Grok-1
 Grok-0

@@ -1,0 +1,126 @@
+GPT-3
+GPT-4
+GPT-3.5
+GPT-2
+GPT3
+GPT4
+4o
+GPT 4o
+O3
+o3-mini
+o4-mini
+GPT 4.1
+GPT-4.1
+Claude
+Claude-2
+Claude-3
+Claude 2
+Claude 3
+Claude-4
+Claude 4
+Claude Opus
+Claude Sonnet
+Claude Haiku
+Bard
+Gemini
+Gemini-Pro
+Gemini-Ultra
+Gemini Pro
+Gemini Ultra
+LLaMA
+LLaMA-2
+LLaMA-3
+Llama
+Llama2
+Llama3
+Mistral
+Mistral-7B
+Mixtral
+Mixtral-8x7B
+Falcon
+Falcon-40B
+Falcon-180B
+GPT-Neo
+GPT-J
+GPTNeo
+GPTJ
+PaLM
+PaLM-2
+Grok
+Grok-1
+Grok-0
+Phi-2
+Phi-3
+Command R
+Cohere
+AI
+Artificial Intelligence
+Machine Learning
+ML
+Deep Learning
+Language Model
+Large Language Model
+LLM
+NLP
+NLU
+NLG
+Transformer
+Transformers
+Attention Mechanism
+Generative AI
+GenAI
+Chatbot
+Virtual Assistant
+AI Assistant
+Prompt
+Prompting
+Prompt Engineering
+Fine-tuning
+Finetuning
+RAG
+Hallucination
+AI Ethics
+AI Safety
+Responsible AI
+AI Alignment
+AGI
+Foundation Model
+Pre-trained Model
+AI Agent
+AI Agents
+Multimodal AI
+Zero-shot
+Few-shot
+AI Model
+AI Algorithm
+Neural Network
+Text Generation
+Code Generation
+Image Generation
+Reasoning
+AI capabilities
+AI limitations
+OpenAI
+Google AI
+DeepMind
+Google DeepMind
+Anthropic
+Meta AI
+Microsoft AI
+NVIDIA
+Hugging Face
+HuggingFace
+Stability AI
+Cohere
+AI21 Labs
+Inflection AI
+Mistral AI
+API
+SDK
+Benchmark
+Dataset
+Compute
+Bias in AI
+AI Regulation
+Future of AI
+Singularity
