@@ -15,6 +15,16 @@ services:
     volumes:
       - producer_data:/app/data
 
+  post-filter:
+    build: ./post-filter/
+    container_name: llm-classifier
+    ports:
+      - "8002:8000"
+    restart: unless-stopped
+    # The 'environment' section for the token has been removed.
+    volumes:
+      - huggingface_cache:/root/.cache/huggingface
+
   enrichment-agent:
     depends_on:
       - kafka-init
@@ -184,10 +194,10 @@ services:
     restart: unless-stopped
 
 volumes:
-  qdrant_storage: # Defines the named volume for Qdrant data
-  postgres_data: # Defines the named volume for Postgres data
-  producer_data: # Defines the named volume for Producer data
-  pgadmin_data: # Defines the named volume for pgAdmin data
-  grafana_data: # Defines the named volume for grafana data
-
+  qdrant_storage:
+  postgres_data:
+  producer_data:
+  pgadmin_data:
+  grafana_data:
+  huggingface_cache: {}
   mongo_data:
