@@ -2,15 +2,16 @@ import asyncio
 import json
 import logging
 import os
-
+import signal
 import aiohttp
 import cbor2
 from langdetect import detect, LangDetectException
 from langdetect.detector_factory import DetectorFactory
+from websockets.exceptions import ConnectionClosedError
 import websockets
 from confluent_kafka import Producer
 
-from producer.utils import generate_uuid_from_string
+from utils import generate_uuid_from_string
 
 # -------- Configuration ---------
 DetectorFactory.seed = 0
@@ -20,13 +21,8 @@ KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
 
 URI = "wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post"
 
-conf = {
-    'bootstrap.servers': f'{KAFKA_BROKER}',
-    'client.id': f'posts-producer'
-}
-
 MIN_POST_LENGTH = 20
-LLM_CLASSIFIER_API_URL = 'post-filter:8002'
+LLM_CLASSIFIER_API_URL = 'http://post-filter:8002/classify'
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -43,11 +39,18 @@ def delivery_report(err, msg):
 # -------- Producer ---------
 
 class BlueskyProducer:
-    def __init__(self, bluesky_uri=URI, kafka_broker=KAFKA_BROKER, kafka_output_topic=KAFKA_OUTPUT_TOPIC, conf=conf):
+    def __init__(self, bluesky_uri=URI, kafka_broker=KAFKA_BROKER, kafka_output_topic=KAFKA_OUTPUT_TOPIC):
         self.bluesky_uri = bluesky_uri
         self.kafka_broker = kafka_broker
         self.kafka_output_topic = kafka_output_topic
-        self.conf = conf
+        self.shutdown_event = asyncio.Event()
+
+        kafka_conf = {
+            'bootstrap.servers': self.kafka_broker,
+            'client.id': 'posts-producer'
+        }
+
+        self.conf = kafka_conf
 
         self.producer = Producer(self.conf)
         logging.info("Kafka broker initialized. Broker: %s", self.kafka_broker)
@@ -87,23 +90,29 @@ class BlueskyProducer:
         return None
 
 
-    async def _process_message(self, message: bytes, session: aiohttp.ClientSession) -> None:
+    async def _process_message(self, message: str | bytes, session: aiohttp.ClientSession) -> None:
         try:
-            header, payload = cbor2.loads(message)
-        except cbor2.CBORDecodeError:
-            logging.warning("Failed to decode CBOR message.")
+            message_json = json.loads(message)
+        except json.JSONDecodeError:
+            logging.warning("Failed to decode JSON message.")
             return
 
-        if header.get('op') != 1 or header.get('t') != '#commit':
+        if message_json.get('kind') != 'commit':
             return
 
-        record = payload.get('record')
+        commit = message_json.get('commit')
+        if not commit or commit.get('operation') != 'create':
+            return
+
+        record = commit.get('record')
         if not record:
             return
 
         content = record.get('text', '').strip()
         if not content:
             return
+        else:
+            content = content.lower()
 
         if len(content) < MIN_POST_LENGTH:
             logging.debug(f"Post dropped: too short ({len(content)} chars).")
@@ -123,43 +132,54 @@ class BlueskyProducer:
             logging.debug("Post dropped: LLM classification failed.")
             return
 
-
-        message_json = {
-            "did": payload.get("repo"),
-            "time_us": record.get("createdAt")
-        }
-
         data = {
             "uuid": generate_uuid_from_string(message_json.get("did")),
             "did": message_json.get("did"),
-            "llm_name": found_llm, # This now comes from the API's 'label'
+            "llm_name": found_llm,
             "text": content,
             "lang": lang,
             "date": str(message_json.get("time_us"))
         }
-        #
-        # self.producer.produce(
-        #     self.kafka_output_topic,
-        #     key=data["uuid"],
-        #     value=json.dumps(data),
-        #     callback=delivery_report
-        # )
-        # self.producer.poll(0)
+
+        self.producer.produce(
+            self.kafka_output_topic,
+            key=data["uuid"],
+            value=json.dumps(data).encode('utf-8'),
+            callback=delivery_report
+        )
+        self.producer.poll(0)
 
         logging.info(f"Post from {data['did']} about '{found_llm}' sent to Kafka.")
+
+
+    def _setup_signal_handlers(self):
+        loop = asyncio.get_running_loop()
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            loop.add_signal_handler(sig, self.shutdown_event.set)
+
 
     async def _run_async(self):
         """Manages the async resources (like aiohttp session) and the main loop."""
         async with aiohttp.ClientSession() as session:
-            while True:
+            while not self.shutdown_event.is_set():
                 try:
-                    await self._connect_and_listen(session)
-                except websockets.exceptions.ConnectionClosedError as e:
-                    logging.warning(f"Connection closed unexpectedly: {e}. Reconnecting in 5 seconds...")
-                except Exception as e:
-                    logging.error(f"An error occurred: {e}. Reconnecting in 5 seconds...")
+                    # Use asyncio.wait to handle the shutdown signal while listening
+                    listen_task = asyncio.create_task(self._connect_and_listen(session))
+                    shutdown_task = asyncio.create_task(self.shutdown_event.wait())
+                    await asyncio.wait(
+                        [listen_task, shutdown_task],
+                            return_when=asyncio.FIRST_COMPLETED
+                        )
 
-                await asyncio.sleep(5)
+                    if not listen_task.done():
+                        listen_task.cancel() # Cancel the listener if it's still running
+
+                except ConnectionClosedError as e:
+                    logging.warning(f"Connection closed: {e}. Reconnecting in 5s...")
+                    await asyncio.sleep(5)
+                except Exception as e:
+                    logging.error(f"An error occurred: {e}. Reconnecting in 5s...")
+                    await asyncio.sleep(5)
 
 
     def run(self):
@@ -169,6 +189,7 @@ class BlueskyProducer:
         except KeyboardInterrupt:
             logging.info("Producer shutting down...")
         finally:
+            logging.info("Flushing final Kafka messages...")
             self.producer.flush()
 
 if __name__ == "__main__":
