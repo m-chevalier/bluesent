@@ -3,6 +3,7 @@ services:
     depends_on:
       - kafka-init
       - kafka
+      - post-filter
     build: producer/
     container_name: producer
     environment:
