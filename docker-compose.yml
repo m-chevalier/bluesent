@@ -3,13 +3,12 @@ services:
     depends_on:
       - kafka-init
       - kafka
-    expose:
-      - 8000
     build: producer/
     container_name: producer
     environment:
       LOG_LEVEL: ${LOG_LEVEL}
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_BROKER: kafka:9092
+      # KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_OUTPUT_TOPIC: llm-posts
     restart: unless-stopped
     volumes:
