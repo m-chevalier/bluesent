@@ -33,7 +33,7 @@ class LLMResponse(BaseModel):
     llms: List[LLMEntry]
     
 
-topics = ["speed", "cost", "quality", "safety", "reliability", "performance"]
+topics = ["speed", "cost", "quality", "safety", "reliability", "performance", "coding_ability", "creativity", "privacy", "hallucination"]
 
 
 
@@ -54,6 +54,8 @@ Gemini
 Bard
 LLaMA
 Mistral
+grok
+kimi
 
 Include version numbers if mentioned, e.g., "chatGPT 4.5". Standardize the name and append the version if found.
 
@@ -108,6 +110,8 @@ def get_analysis(text):
 
     sentiments, tokens_count = analyse_post(text)
     if sentiments["status"] == "success":
+        if len(sentiments["llms"]) == 0:
+            data = None
         for llm in sentiments["llms"]:
             llm_name = llm["name"]
             sentiments_data = llm["sentiments"]
