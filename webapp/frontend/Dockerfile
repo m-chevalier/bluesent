@@ -17,7 +17,7 @@ RUN npm ci
 RUN npx prisma generate
 
 # Build the application
-RUN npm run build -- --no-lint
+RUN npm run build --no-lint
 
 # Expose port
 EXPOSE 3000
