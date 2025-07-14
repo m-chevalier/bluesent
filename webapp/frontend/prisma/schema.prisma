@@ -13,3 +13,23 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Post {
+  uuid      String   @id @db.Uuid
+  content   String   @db.VarChar
+  date      DateTime @db.Timestamp(6)
+  sentiment Sentiment[]
+
+  @@map("posts")
+}
+
+model Sentiment {
+  post_uuid          String @db.Uuid
+  llm_name           String @db.VarChar
+  sentiment_name     String @db.VarChar
+  sentiment_analysis String @db.VarChar
+  post               Post   @relation(fields: [post_uuid], references: [uuid])
+
+  @@id([post_uuid, llm_name, sentiment_name])
+  @@map("sentiment")
+}
