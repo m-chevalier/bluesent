@@ -89,6 +89,7 @@ services:
     volumes:
       - ./webapp/frontend:/app
       - /app/node_modules
+      - /app/.next
 
   grafana:
     image: grafana/grafana

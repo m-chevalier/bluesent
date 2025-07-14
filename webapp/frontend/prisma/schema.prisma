@@ -16,9 +16,9 @@ datasource db {
 }
 
 model Post {
-  uuid      String   @id @db.Uuid
-  content   String   @db.VarChar
-  date      DateTime @db.Timestamp(6)
+  uuid      String      @id @db.Uuid
+  content   String      @db.VarChar
+  date      DateTime    @db.Timestamp(6)
   sentiment Sentiment[]
 
   @@map("posts")
