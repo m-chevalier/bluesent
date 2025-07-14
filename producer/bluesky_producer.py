@@ -16,13 +16,15 @@ from utils import generate_uuid_from_string
 # -------- Configuration ---------
 DetectorFactory.seed = 0
 
+USE_LOCALHOST = os.getenv('USE_LOCALHOST', False)
 KAFKA_OUTPUT_TOPIC = os.getenv('KAFKA_OUTPUT_TOPIC', 'llm-posts')
-KAFKA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
+
+KAFKA_BROKER =os.getenv('KAFKA_BROKER', 'kafka:9092')
 
 URI = "wss://jetstream2.us-east.bsky.network/subscribe?wantedCollections=app.bsky.feed.post"
 
 MIN_POST_LENGTH = 20
-LLM_CLASSIFIER_API_URL = 'http://post-filter:8002/classify'
+LLM_CLASSIFIER_API_URL = 'http://post-filter:8000/classify'
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -128,14 +130,16 @@ class BlueskyProducer:
             return
 
         found_llm = await self._get_prediction(session, content)
-        if not found_llm:
+
+        is_about_llm = found_llm == 'Positive'
+
+        if not is_about_llm:
             logging.debug("Post dropped: LLM classification failed.")
             return
 
         data = {
             "uuid": generate_uuid_from_string(message_json.get("did")),
             "did": message_json.get("did"),
-            "llm_name": found_llm,
             "text": content,
             "lang": lang,
             "date": str(message_json.get("time_us"))
