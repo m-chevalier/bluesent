@@ -3,21 +3,19 @@ FROM node:18-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Install dependencies early for better caching
 COPY package*.json ./
-
-COPY . .
-
-# Install dependencies
+COPY prisma ./prisma
 RUN npm ci
-
-# Copy source code
 
 # Generate Prisma client
 RUN npx prisma generate
 
-# Build the application
-RUN npm run build --no-lint
+# Copy the rest of the application code
+COPY . .
+
+# Build the Next.js app
+RUN npm run build
 
 # Expose port
 EXPOSE 3000
