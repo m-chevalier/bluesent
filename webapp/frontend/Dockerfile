@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm ci --only=production=false
 
 # Copy source code
 COPY . .
@@ -15,8 +15,11 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
+# Build the application
+RUN npm run build
+
 # Expose port
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]
