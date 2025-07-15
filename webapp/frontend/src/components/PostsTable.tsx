@@ -40,13 +40,13 @@ export function PostsTable({ posts }: PostsTableProps) {
   }
 
   return (
-    <Table>
+    <Table className="w-full table-fixed">
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">Date</TableHead>
-          <TableHead className="w-[40%]">Content</TableHead>
-          <TableHead className="w-[40%]">Sentiment Analysis</TableHead>
-          <TableHead className="w-[20%]">LLM Count</TableHead>
+          <TableHead className="w-[20%]">Date</TableHead>
+          <TableHead className="w-[50%]">Content</TableHead>
+          <TableHead className="w-[20%]">Sentiment Analysis</TableHead>
+          <TableHead className="w-[10%]">LLM Count</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -56,9 +56,9 @@ export function PostsTable({ posts }: PostsTableProps) {
               {formatDate(post.date)}
             </TableCell>
             <TableCell>
-              <div className="max-w-md">
-                <p className="text-sm leading-relaxed">
-                  {truncateContent(post.content, 150)}
+              <div className="space-y-1">
+                <p className="text-sm whitespace-pre-wrap break-words">
+                  {post.content}
                 </p>
               </div>
             </TableCell>
