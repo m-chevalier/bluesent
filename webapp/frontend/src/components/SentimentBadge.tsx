@@ -10,9 +10,9 @@ export function SentimentBadge({ sentiment }: SentimentBadgeProps) {
   const getSentimentColor = (analysis: string) => {
     const lowerAnalysis = analysis.toLowerCase()
     if (lowerAnalysis.includes('positive')) {
-      return 'bg-blue-50 text-blue-800 border-blue-200'
-    } else if (lowerAnalysis.includes('negative')) {
       return 'bg-blue-100 text-blue-900 border-blue-300'
+    } else if (lowerAnalysis.includes('negative')) {
+      return 'bg-[#fde8f0] text-[#d57d97] border-[#d57d97]'
     } else if (lowerAnalysis.includes('neutral')) {
       return 'bg-muted text-muted-foreground border-border'
     }
