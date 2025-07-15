@@ -74,7 +74,7 @@ export default function PostsPage() {
             )}
           </div>
 
-          <div className="overflow-x-auto">
+          <div className={'w-full'}>
             {loading ? (
               <LoadingTable />
             ) : (

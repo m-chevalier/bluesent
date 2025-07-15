@@ -86,6 +86,10 @@ services:
       - postgres
       - qdrant
     restart: unless-stopped
+    volumes:
+      - ./webapp/frontend:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev"
 
   grafana:
     image: grafana/grafana

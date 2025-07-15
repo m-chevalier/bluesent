@@ -13,8 +13,6 @@ COPY . .
 # Install dependencies
 
 RUN npx prisma generate
-# Build the application
-RUN npm run build
 
 # Expose port
 EXPOSE 3000
