@@ -44,8 +44,8 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
     )
@@ -55,7 +55,7 @@ export default function DashboardPage() {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
         <div className="text-center">
-          <p className="text-red-600 mb-4">Error: {error}</p>
+          <p className="text-destructive mb-4">Error: {error}</p>
           <Button onClick={fetchStats}>Retry</Button>
         </div>
       </div>
@@ -65,7 +65,7 @@ export default function DashboardPage() {
   if (!stats) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-3.5rem)]">
-        <p className="text-gray-600">No data available</p>
+        <p className="text-muted-foreground">No data available</p>
       </div>
     )
   }
@@ -75,7 +75,7 @@ export default function DashboardPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Sentiment Analysis Dashboard</h1>
-          <p className="text-gray-600 mt-2">Overview of posts and sentiment analysis by LLMs</p>
+          <p className="text-muted-foreground mt-2">Overview of posts and sentiment analysis by LLMs</p>
         </div>
         <Button onClick={fetchStats}>Refresh Data</Button>
       </div>

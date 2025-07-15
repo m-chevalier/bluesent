@@ -33,7 +33,7 @@ export function PostsTable({ posts }: PostsTableProps) {
 
   if (posts.length === 0) {
     return (
-      <div className="text-center py-8 text-gray-500">
+      <div className="text-center py-8 text-muted-foreground">
         No posts available
       </div>
     )
@@ -66,7 +66,7 @@ export function PostsTable({ posts }: PostsTableProps) {
               <SentimentList sentiments={post.sentiment} />
             </TableCell>
             <TableCell className="text-center">
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent text-accent-foreground">
                 {post.sentiment.length} {post.sentiment.length === 1 ? 'analysis' : 'analyses'}
               </span>
             </TableCell>
