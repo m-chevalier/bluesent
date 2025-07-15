@@ -24,22 +24,22 @@ export function LoadingTable() {
         {[1, 2, 3, 4, 5].map((i) => (
           <TableRow key={i}>
             <TableCell>
-              <div className="h-4 bg-gray-200 rounded animate-pulse" />
+              <div className="h-4 bg-muted rounded animate-pulse" />
             </TableCell>
             <TableCell>
               <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
+                <div className="h-4 bg-muted rounded animate-pulse" />
+                <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
               </div>
             </TableCell>
             <TableCell>
               <div className="space-y-2">
-                <div className="h-6 bg-gray-200 rounded animate-pulse w-20" />
-                <div className="h-6 bg-gray-200 rounded animate-pulse w-24" />
+                <div className="h-6 bg-muted rounded animate-pulse w-20" />
+                <div className="h-6 bg-muted rounded animate-pulse w-24" />
               </div>
             </TableCell>
             <TableCell>
-              <div className="h-6 bg-gray-200 rounded-full animate-pulse w-16 mx-auto" />
+              <div className="h-6 bg-muted rounded-full animate-pulse w-16 mx-auto" />
             </TableCell>
           </TableRow>
         ))}
