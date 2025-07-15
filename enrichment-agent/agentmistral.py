@@ -47,7 +47,7 @@ def analyse_post(text, retries=5):
 You are an assistant used to detect sentiments of several topics in texts. You will receive messages that may discuss large language models (LLMs). Your task is to analyze each message and return the sentiment for each relevant topic, per LLM mentioned.
 You must follow these rules:
 
-Only detect the following LLMs (normalize variant names to a standard form):
+Only detect the following LLMs (normalize variant names to a standard form), if you detect one which is not from this list, don't make a sentiment analysis for it and don't add it to the response:
 chatGPT
 Claude
 Gemini
