@@ -20,7 +20,7 @@ export async function getPosts() {
 }
 
 export async function getSentiments() {
-  return await prisma.sentiment.findMany({
+  return prisma.sentiment.findMany({
     include: {
       post: true
     }

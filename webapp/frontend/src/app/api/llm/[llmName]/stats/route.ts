@@ -4,6 +4,7 @@ import {prisma} from "@/lib/database";
 export async function GET(request: Request, { params }: { params: { llmName: string } }) {
 
   const { llmName } = await params;
+  console.log('Received llmName:', llmName);
 
   try {
     const sentimentStats = await prisma.sentiment.groupBy({
