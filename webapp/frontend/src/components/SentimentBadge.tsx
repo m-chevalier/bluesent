@@ -1,9 +1,7 @@
 'use client'
 
-import { Sentiment } from '@/types'
-
 interface SentimentBadgeProps {
-  sentiment: Sentiment
+  sentiment: string
 }
 
 export function SentimentBadge({ sentiment }: SentimentBadgeProps) {
@@ -15,27 +13,28 @@ export function SentimentBadge({ sentiment }: SentimentBadgeProps) {
       return 'bg-[#fde8f0] text-[#d57d97] border-[#d57d97]'
     } else if (lowerAnalysis.includes('neutral')) {
       return 'bg-muted text-muted-foreground border-border'
+    } else if (lowerAnalysis.includes('joy')) {
+        return 'bg-yellow-100 text-yellow-900 border-yellow-300'
+    } else if (lowerAnalysis.includes('sadness')) {
+        return 'bg-gray-100 text-gray-900 border-gray-300'
+    } else if (lowerAnalysis.includes('fear')) {
+        return 'bg-purple-100 text-purple-900 border-purple-300'
+    } else if (lowerAnalysis.includes('disgust')) {
+        return 'bg-green-100 text-green-900 border-green-300'
+    } else if (lowerAnalysis.includes('anger')) {
+        return 'bg-red-100 text-red-900 border-red-300'
     }
+
     return 'bg-accent text-accent-foreground border-border'
   }
 
   return (
-    <div className="flex flex-col space-y-1">
-      <div className="flex items-center space-x-2">
-        <span className="text-xs font-medium text-muted-foreground">
-          {sentiment.llm_name}
-        </span>
-        <span className="text-xs text-muted-foreground/70">
-          ({sentiment.sentiment_name})
-        </span>
-      </div>
-      <span
-        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getSentimentColor(
-          sentiment.sentiment_analysis
-        )}`}
-      >
-        {sentiment.sentiment_analysis}
-      </span>
-    </div>
+    <span
+      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border ${getSentimentColor(
+        sentiment
+      )}`}
+    >
+      {sentiment}
+    </span>
   )
 }

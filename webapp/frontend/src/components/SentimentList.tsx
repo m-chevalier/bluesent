@@ -19,10 +19,20 @@ export function SentimentList({ sentiments }: SentimentListProps) {
   return (
     <div className="space-y-2">
       {sentiments.map((sentiment, index) => (
-        <SentimentBadge
+        <div
           key={`${sentiment.llm_name}-${sentiment.sentiment_name}-${index}`}
-          sentiment={sentiment}
-        />
+          className="flex flex-col space-y-1"
+        >
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-medium text-muted-foreground">
+              {sentiment.llm_name}
+            </span>
+            <span className="text-xs text-muted-foreground/70">
+              ({sentiment.sentiment_name})
+            </span>
+          </div>
+          <SentimentBadge sentiment={sentiment.sentiment_analysis} />
+        </div>
       ))}
     </div>
   )

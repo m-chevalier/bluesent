@@ -15,3 +15,19 @@ export interface Sentiment {
 export interface PostWithSentiments extends Post {
   sentiment: Sentiment[]
 }
+
+export interface LlmStats {
+  sentimentStats: {
+    sentiment_name: string;
+    _count: {
+      sentiment_name: number;
+    };
+  }[];
+  recentPosts: any[];
+  totalSentiments: {
+    sentiment_analysis: string;
+    _count: {
+      sentiment_analysis: number;
+    };
+  }[];
+}
