@@ -31,8 +31,9 @@ def insert_post(id, content, date, sentiment_analysis):
         data = []
 
         for llm, analysis in sentiment_analysis.items():
+            normalized_llm = llm.lower().replace(" ", "-")
             for sentiment in analysis:
-                data.append((id, llm, sentiment['sentiment_name'], sentiment['sentiment_analysis']))
+                data.append((id, normalized_llm, sentiment['sentiment_name'], sentiment['sentiment_analysis']))
         try:
             cur.execute(query_post, (id, content, convert_to_timestamp(date)))
             execute_batch(cur, query_dimension, data)
