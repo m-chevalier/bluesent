@@ -34,10 +34,11 @@ export function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center">
-          <div className="mr-4 hidden md:flex">
-            <Link href="/" className="mr-6 flex items-center space-x-2">
-              <span className="hidden font-bold sm:inline-block">
+        <div className="container mx-auto flex h-14 items-center justify-between">
+          {/* Desktop navigation */}
+          <div className="hidden md:flex items-center space-x-6">
+            <Link href="/" className="flex items-center space-x-2">
+              <span className="font-bold text-lg">
                 BlueSent
               </span>
             </Link>
@@ -45,7 +46,7 @@ export function Navbar() {
               <NavigationMenuList>
                 {navigation.map((item) => (
                   <NavigationMenuItem key={item.name}>
-                    <Link href={item.href} passHref>
+                    <Link href={item.href} legacyBehavior passHref>
                       <NavigationMenuLink
                         className={cn(
                           navigationMenuTriggerStyle(),
@@ -62,39 +63,30 @@ export function Navbar() {
           </div>
 
           {/* Mobile navigation */}
-          <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-            <div className="w-full flex-1 md:w-auto md:flex-none">
-              <div className="flex md:hidden">
-                <Link href="/" className="mr-6 flex items-center space-x-2">
-                  <span className="font-bold">BlueSent</span>
-                </Link>
-              </div>
-            </div>
-            <nav className="flex items-center space-x-1">
-              {/* Mobile menu items */}
-              <div className="flex md:hidden space-x-2">
-                {navigation.map((item) => (
-                  <Link key={item.name} href={item.href}>
-                    <Button
-                      variant={pathname === item.href ? "default" : "ghost"}
-                      size="sm"
-                    >
-                      {item.name}
-                    </Button>
-                  </Link>
-                ))}
-              </div>
-
-              {/* LLM Stats button */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowLLMSearch(true)}
-              >
-                LLM Stats
-              </Button>
-            </nav>
+          <div className="flex md:hidden items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2">
+              <span className="font-bold text-lg">BlueSent</span>
+            </Link>
+            {navigation.map((item) => (
+              <Link key={item.name} href={item.href}>
+                <Button
+                  variant={pathname === item.href ? "default" : "ghost"}
+                  size="sm"
+                >
+                  {item.name}
+                </Button>
+              </Link>
+            ))}
           </div>
+
+          {/* LLM Stats button - always on the right */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowLLMSearch(true)}
+          >
+            LLM Stats
+          </Button>
         </div>
       </header>
 
