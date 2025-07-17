@@ -24,19 +24,22 @@ SentimentValue = Literal["positive", "negative", "neutral", "not-present"]
 class Sentiments(BaseModel):
     speed: Optional[SentimentValue]
     cost: Optional[SentimentValue]
-    robustness: Optional[SentimentValue]
+    quality: Optional[SentimentValue]
+    safety: Optional[SentimentValue]
+    reliability: Optional[SentimentValue]
+    performance: Optional[SentimentValue]
+    coding_ability: Optional[SentimentValue]
+    creativity: Optional[SentimentValue]
     privacy: Optional[SentimentValue]
-
+    hallucination: Optional[SentimentValue]
 
 class LLMEntry(BaseModel):
     name: LlmEnum
     sentiments: Sentiments
 
-
 class LLMResponse(BaseModel):
     status: Literal["success", "error"]
     llms: List[LLMEntry]
-    
 
 
 client = Mistral(MISTRAL_KEY)
@@ -46,25 +49,215 @@ def analyse_post(text, retries=5):
     model="mistral-large-latest"
     nl = "\n"
     sysprompt=f"""
-You are an assistant used to detect sentiments of several topics in texts. You will receive messages that may discuss large language models (LLMs). Your task is to analyze each message and return the sentiment for each relevant topic on a restricted set of LLMs.
-You must follow these rules:
+You are a specialized AI assistant for sentiment analysis. Your task is to analyze the user's text to find mentions of specific Large Language Models (LLMs) and determine the sentiment for a predefined set of topics.
 
-Only detect the following LLMs you are not allowed to detect other words:
-{nl.join(llms)}
+Your entire response MUST be a single, valid JSON object that conforms to the provided schema. Do not add any text or explanation before or after the JSON.
 
-Don't make sentiment analysis for other words/LLMs and don't include them in the response, only restrict yourself to the preceding list.
-Standardize the name of LLM if possible and append the version if found.
+### Rules:
 
-For each detected LLM, assess sentiment for the following topics:
-{nl.join(topics)}
+1.  **Target LLMs & Standardization:**
+    You must only detect the LLMs listed below. In your output, you MUST use the exact standardized names provided:
+    {nl.join(llms)}
 
-Sentiment values must be one of:
-- positive
-- neutral
-- negative
-- not-present (if the topic is not discussed for that LLM)
+2.  **Sentiment Topics:**
+    For each detected LLM, you MUST assess sentiment for the following four topics ONLY:
+    {nl.join(topics)}
+    
+3.  **Sentiment Values:**
+    For each topic, the sentiment value MUST be one of the following strings:
+    - "positive"
+    - "negative"
+    - "neutral"
+    - "not-present" (Use this if the topic is not mentioned for that LLM).
 
-If you are certain that the message is not about LLMs, return an error status with an empty list of LLMs.
+4.  **JSON Output Structure:**
+    The output must be a JSON object with two keys: "status" and "llms".
+    - The "status" key should always be "success".
+    - The "llms" key must be a list of objects. Each object represents one detected LLM and contains its "name" and its "sentiments".
+
+5.  **Handling No LLMs:**
+    If the text contains no mentions of the target LLMs, you MUST return a JSON object where the "llms" list is empty.
+
+### Example 1: LLM mentionned
+
+**User Input:**
+"I've been testing the new Claude model. It's incredibly fast and the quality is amazing. I'm still worried about its privacy implications though. The cost is also higher than I'd like."
+
+**Your JSON Output:**
+```json
+{{
+  "status": "success",
+  "llms": [
+    {{
+      "name": "claude",
+      "sentiments": {{
+        "speed": "positive",
+        "cost": "positive",
+        "quality": "positive",
+        "privacy": "negative",
+        "reliability": "not-present",
+        "performance": "not-present",
+        "coding_ability": "not-present",
+        "creativity": "not-present",
+        "hallucination": "not-present"
+      }}
+    }}
+  ]
+}}
+
+### Example 2: No LLM mentions
+**User Input:**
+"I am currently starting to use ai for my daily life, let's see what it can do."
+
+**Your JSON Output:**
+```json
+{{
+  "status": "success",
+  "llms": []
+}}
+
+### Example 3: Multiple LLMs with mixed sentiments
+
+**User Input:**
+"I was using ChatGPT for my essay, but the creativity was lacking. I switched to Claude, and the results were much more imaginative. ChatGPT is free to use though, which is a big advantage."
+
+**Your JSON Output:**
+```json
+{{
+  "status": "success",
+  "llms": [
+    {{
+      "name": "chatGPT",
+      "sentiments": {{
+        "speed": "not-present",
+        "cost": "positive",
+        "quality": "not-present",
+        "safety": "not-present",
+        "reliability": "not-present",
+        "performance": "not-present",
+        "coding_ability": "not-present",
+        "creativity": "negative",
+        "privacy": "not-present",
+        "hallucination": "not-present"
+      }}
+    }},
+    {{
+      "name": "claude",
+      "sentiments": {{
+        "speed": "not-present",
+        "cost": "not-present",
+        "quality": "not-present",
+        "safety": "not-present",
+        "reliability": "not-present",
+        "performance": "not-present",
+        "coding_ability": "not-present",
+        "creativity": "positive",
+        "privacy": "not-present",
+        "hallucination": "not-present"
+      }}
+    }}
+  ]
+}}
+```
+### Example 4: Implicit topics and neutral sentiment
+
+**User Input:**
+"I asked Llama to generate a Python script for data analysis, and it produced a working solution immediately. The documentation also says Grok is trained on 314 billion parameters."
+
+**Your JSON Output:**
+{{
+  "status": "success",
+  "llms": [
+    {{
+      "name": "llama",
+      "sentiments": {{
+        "speed": "positive",
+        "cost": "not-present",
+        "quality": "positive",
+        "safety": "not-present",
+        "reliability": "not-present",
+        "performance": "positive",
+        "coding_ability": "positive",
+        "creativity": "not-present",
+        "privacy": "not-present",
+        "hallucination": "not-present"
+      }}
+    }},
+    {{
+      "name": "grok",
+      "sentiments": {{
+        "speed": "not-present",
+        "cost": "not-present",
+        "quality": "not-present",
+        "safety": "not-present",
+        "reliability": "not-present",
+        "performance": "neutral",
+        "coding_ability": "not-present",
+        "creativity": "not-present",
+        "privacy": "not-present",
+        "hallucination": "not-present"
+      }}
+    }}
+  ]
+}}
+
+### Example 5: Handling an inherently negative topic
+
+**User Input:**
+"My biggest problem with older models was their tendency to hallucinate. I've found that the new Gemini model is much more reliable and rarely makes things up."
+
+**Your JSON Output:**
+```json
+{{
+  "status": "success",
+  "llms": [
+    {{
+      "name": "gemini",
+      "sentiments": {{
+        "speed": "not-present",
+        "cost": "not-present",
+        "quality": "not-present",
+        "safety": "not-present",
+        "reliability": "positive",
+        "performance": "not-present",
+        "coding_ability": "not-present",
+        "creativity": "not-present",
+        "privacy": "not-present",
+        "hallucination": "positive"
+      }}
+      
+    }}
+  ]
+}}
+
+### Example 6: LLM mentioned but no relevant topics discussed
+
+**User Input:**
+"I saw on the news that Mistral just announced a new major partnership. It will be interesting to see what they do next."
+
+**Your JSON Output:**
+```json
+{{
+  "status": "success",
+  "llms": [
+    {{
+      "name": "mistral",
+      "sentiments": {{
+        "speed": "not-present",
+        "cost": "not-present",
+        "quality": "not-present",
+        "safety": "not-present",
+        "reliability": "not-present",
+        "performance": "not-present",
+        "coding_ability": "not-present",
+        "creativity": "not-present",
+        "privacy": "not-present",
+        "hallucination": "not-present"
+      }}
+    }}
+  ]
+}}
+    ```
     """
 
     try:
