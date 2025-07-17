@@ -2,9 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react';
+import { LLMSearchOverlay } from './LLMSearchOverlay';
 
 export function Navbar() {
-  const pathname = usePathname()
+  const pathname = usePathname();
+  const [showLLMSearch, setShowLLMSearch] = useState(false);
 
   const navigation = [
     {
@@ -17,7 +20,7 @@ export function Navbar() {
       href: '/posts',
       description: 'Browse posts with sentiment analysis'
     }
-  ]
+  ];
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm shadow-sm">
@@ -43,9 +46,14 @@ export function Navbar() {
                   {item.name}
                 </Link>
               ))}
+              <button
+                className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground border border-primary rounded px-3 py-1 ml-4"
+                onClick={() => setShowLLMSearch(true)}
+              >
+                LLM Stats
+              </button>
             </nav>
           </div>
-          
           {/* Mobile menu */}
           <nav className="md:hidden flex space-x-4">
             {navigation.map((item) => (
@@ -61,9 +69,20 @@ export function Navbar() {
                 {item.name}
               </Link>
             ))}
+            <button
+              className="text-sm font-medium transition-colors hover:text-primary text-muted-foreground border border-primary rounded px-2 py-1"
+              onClick={() => setShowLLMSearch(true)}
+            >
+              LLM Stats
+            </button>
           </nav>
         </div>
       </div>
+
+      <LLMSearchOverlay
+        isOpen={showLLMSearch}
+        onClose={() => setShowLLMSearch(false)}
+      />
     </header>
-  )
+  );
 }
