@@ -1,4 +1,4 @@
-import {PrismaClient} from '../generated/prisma'
+import {PrismaClient} from '@/generated/prisma'
 
 const globalForPrisma = globalThis as unknown as {
     prisma: PrismaClient | undefined
@@ -9,14 +9,14 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient()
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
 export async function getPosts() {
-    return await prisma.post.findMany({
+    return prisma.post.findMany({
         include: {
             sentiment: true
         },
         orderBy: {
             date: 'desc'
         }
-    })
+    });
 }
 
 export async function getSentiments() {
@@ -54,14 +54,12 @@ export async function getPostStats() {
 }
 
 export async function getSentimentAnalysisByLLM() {
-    const result = await prisma.sentiment.groupBy({
+    return prisma.sentiment.groupBy({
         by: ['llm_name', 'sentiment_analysis'],
         _count: {
             sentiment_analysis: true
         }
-    })
-
-    return result
+    });
 }
 
 // Returns a list of unique LLM names from the postgres table
