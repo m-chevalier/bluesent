@@ -194,8 +194,10 @@ services:
       - pgadmin_data:/var/lib/pgadmin
 
   mongo:
+    profiles: ["optional"]
     image: mongo:latest
     container_name: mongo
+
     ports:
       - "27017:27017"
     volumes:
@@ -203,6 +205,7 @@ services:
     restart: unless-stopped
 
   mongo-express:
+    profiles: ["optional"]
     image: mongo-express:latest
     container_name: mongo-express
     ports:
