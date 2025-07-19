@@ -3,17 +3,27 @@ services:
     depends_on:
       - kafka-init
       - kafka
-    expose:
-      - 8000
+      - post-filter
     build: producer/
     container_name: producer
     environment:
       LOG_LEVEL: ${LOG_LEVEL}
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_BROKER: kafka:9092
+      # KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       KAFKA_OUTPUT_TOPIC: llm-posts
     restart: unless-stopped
     volumes:
       - producer_data:/app/data
+
+  post-filter:
+    build: ./post-filter/
+    container_name: llm-classifier
+    ports:
+      - "8002:8000"
+    restart: unless-stopped
+    # The 'environment' section for the token has been removed.
+    volumes:
+      - huggingface_cache:/root/.cache/huggingface
 
   enrichment-agent:
     depends_on:
@@ -25,7 +35,7 @@ services:
     environment:
       LOG_LEVEL: ${LOG_LEVEL}
       QDRANT_HOST: http://qdrant:6333
-      KAKFA_BROKER: kafka:9092
+      KAFKA_BROKER: kafka:9092
       TOPIC_NAME: llm-posts
       OUTPUT_TOPIC: llm-embeddings-enriched
       GEMINI_KEY: ${GEMINI_KEY}
@@ -62,13 +72,32 @@ services:
     restart: unless-stopped
 
 
+  frontend:
+    build: ./webapp/frontend/
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    depends_on:
+      - postgres
+      - qdrant
+    restart: unless-stopped
+    volumes:
+      - ./webapp/frontend:/app
+      - /app/node_modules
+    command: sh -c "npm install && npm run dev"
+
   grafana:
     image: grafana/grafana
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - grafana_data:/var/lib/grafana
     ports:
-      - "3000:3000"
+      - "3001:3000"
     restart: unless-stopped
 
 
@@ -78,15 +107,17 @@ services:
       ports:
         - "9092:9092"
         - "9093:9093"
+        - "29092:29092"
       environment:
         # Kafka KRaft Config
         KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
         KAFKA_NODE_ID: 1
         KAFKA_PROCESS_ROLES: broker,controller
         KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-        KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
-        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+        KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092,CONTROLLER://0.0.0.0:9093
+        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
+        KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
+        KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
         KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
         KAFKA_NUM_PARTITIONS: 1
         KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -105,7 +136,8 @@ services:
       echo 'Kafka is up. Creating topics...' &&
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic __consumer_offsets --partitions 20 --replication-factor 1 &&
       /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-posts --replication-factor 1 --partitions 1 &&
-      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-embeddings-enriched --replication-factor 1 --partitions 1
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm-embeddings-enriched --replication-factor 1 --partitions 1 &&
+      /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists --topic llm_training_data_raw --replication-factor 1 --partitions 1
       "
 
   kafka-ui:
@@ -161,10 +193,34 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
-volumes:
-  qdrant_storage: # Defines the named volume for Qdrant data
-  postgres_data: # Defines the named volume for Postgres data
-  producer_data: # Defines the named volume for Producer data
-  pgadmin_data: # Defines the named volume for pgAdmin data
-  grafana_data: # Defines the named volume for grafana data
+  mongo:
+    profiles: ["optional"]
+    image: mongo:latest
+    container_name: mongo
 
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  mongo-express:
+    profiles: ["optional"]
+    image: mongo-express:latest
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo
+    depends_on:
+      - mongo
+    restart: unless-stopped
+
+volumes:
+  qdrant_storage:
+  postgres_data:
+  producer_data:
+  pgadmin_data:
+  grafana_data:
+  huggingface_cache: {}
+  mongo_data:
