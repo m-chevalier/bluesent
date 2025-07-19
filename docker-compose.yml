@@ -62,16 +62,6 @@ services:
         INPUT_TOPIC: llm-embeddings-enriched
       restart: unless-stopped
 
-  prometheus:
-    container_name: prometheus
-    image: prom/prometheus
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-    restart: unless-stopped
-
-
   frontend:
     build: ./webapp/frontend/
     container_name: frontend
@@ -90,16 +80,6 @@ services:
       - ./webapp/frontend:/app
       - /app/node_modules
     command: sh -c "npm install && npm run dev"
-
-  grafana:
-    image: grafana/grafana
-    volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - grafana_data:/var/lib/grafana
-    ports:
-      - "3001:3000"
-    restart: unless-stopped
-
 
   kafka:
       build: kafka/
@@ -221,6 +201,5 @@ volumes:
   postgres_data:
   producer_data:
   pgadmin_data:
-  grafana_data:
   huggingface_cache: {}
   mongo_data:

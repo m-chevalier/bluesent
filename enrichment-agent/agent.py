@@ -5,7 +5,6 @@ from qdrant_utils import init_qdrant, insert_data
 import json
 from agentmistral import get_analysis
 import logging
-from prometheus_client import Counter, Histogram, start_http_server
 import os
 import time
 
@@ -18,13 +17,6 @@ QDRANT_HOST = os.getenv('QDRANT_HOST', 'http://qdrant:6333')
 KAKFA_BROKER = os.getenv('KAFKA_BROKER', 'kafka:9092')
 TOPIC_NAME = os.getenv('TOPIC_NAME', 'llm-posts')
 KAFKA_OUTPUT_TOPIC = os.getenv('KAFKA_OUTPUT_TOPIC', 'llm-embeddings-enriched')
-
-start_http_server(8000)  # Start Prometheus metrics server
-
-messages_processed = Counter('enrichment_agent_messages_processed_total', 'Total number of messages processed')
-messages_rejected = Counter('enrichment_agent_messages_rejected_total', 'Total number of messages rejected by the LLM')
-process_duration = Histogram('enrichment_agent_process_duration_ms', 'Duration of message processing in milliseconds')
-tokens_consumed = Histogram('enrichment_agent_tokens_consumed_total', 'Total token consumed')
 
 conf = {
     'bootstrap.servers': f'{KAKFA_BROKER}',
@@ -54,9 +46,6 @@ try:
         if msg.error():
             logging.error(f"Error: {msg.error()}")
             continue
-        
-        messages_processed.inc()
-        start = time.time()
 
         data = json.loads(msg.value().decode('utf-8'))
         
@@ -82,7 +71,6 @@ try:
         # Compute sentiments with AgentGemini
         sentiments, tokens_count = get_analysis(translated_message)
         if sentiments is None: # If no sentiments are returned, skip this message
-            messages_rejected.inc()
             logging.info(f"Message {translated_message} rejected by LLM analysis")
             continue
 
@@ -108,8 +96,6 @@ try:
             callback=delivery_report
         )
         producer.poll(0)  # Poll to trigger delivery report
-        end = time.time()
-        process_duration.observe(end - start)
 
 except KeyboardInterrupt:
     pass
