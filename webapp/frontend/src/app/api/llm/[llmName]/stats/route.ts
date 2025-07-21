@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import {prisma} from "@/lib/database";
+import {prisma, getSentimentTopicBreakdownByLLM} from "@/lib/database";
 
 export async function GET(request: Request, { params }: { params: { llmName: string } }) {
 
@@ -16,6 +16,9 @@ export async function GET(request: Request, { params }: { params: { llmName: str
         sentiment_name: true,
       },
     });
+
+    // Get the new sentiment breakdown by topic and sentiment analysis
+    const sentimentTopicBreakdown = await getSentimentTopicBreakdownByLLM(llmName);
 
     const recentPosts = await prisma.post.findMany({
       where: {
@@ -53,6 +56,7 @@ export async function GET(request: Request, { params }: { params: { llmName: str
 
     return NextResponse.json({
       sentimentStats,
+      sentimentTopicBreakdown, // Add the new breakdown data
       recentPosts,
       totalSentiments
     });

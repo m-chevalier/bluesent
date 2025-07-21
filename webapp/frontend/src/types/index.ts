@@ -23,6 +23,13 @@ export interface LlmStats {
       sentiment_name: number;
     };
   }[];
+  sentimentTopicBreakdown: {
+    sentiment_name: string;
+    sentiment_analysis: string;
+    _count: {
+      sentiment_analysis: number;
+    };
+  }[];
   recentPosts: any[];
   totalSentiments: {
     sentiment_analysis: string;
