@@ -28,6 +28,11 @@ export function Navbar() {
       name: 'Posts',
       href: '/posts',
       description: 'Browse posts with sentiment analysis'
+    },
+    {
+      name: 'Ranking',
+      href: '/ranking',
+      description: 'LLM rankings by topic'
     }
   ]
 
