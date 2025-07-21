@@ -26,9 +26,9 @@ export function SentimentProgressBar({ positive, negative, className = "", compa
 
   return (
     <div className={`${compact ? 'w-24' : 'w-full'} ${className}`}>
-      {/* Progress bar container with custom dual-color implementation */}
+      {/* Progress bar container*/}
       <div className={`relative ${compact ? 'w-24 h-2' : 'w-full h-4'}`}>
-        {/* Background progress bar for negative (pink/rose) */}
+
         <Progress
           value={100}
           className={`absolute inset-0 ${compact ? 'h-2' : 'h-4'} bg-gray-200`}
@@ -37,12 +37,12 @@ export function SentimentProgressBar({ positive, negative, className = "", compa
              style={{
                width: `${negativePercentage}%`,
                marginLeft: `${positivePercentage}%`,
-               backgroundColor: '#d57d97' // Using your negative sentiment color
+               backgroundColor: '#d57d97'
              }}
              title={`${negative} negative (${negativePercentage.toFixed(1)}%)`}
         />
 
-        {/* Foreground progress bar for positive (blue) */}
+
         <Progress
           value={positivePercentage}
           className={`absolute inset-0 ${compact ? 'h-2' : 'h-4'} bg-transparent [&>div]:bg-blue-900`}

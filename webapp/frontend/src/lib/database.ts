@@ -62,7 +62,7 @@ export async function getSentimentAnalysisByLLM() {
     });
 }
 
-// New function to get sentiment breakdown by topic and sentiment analysis
+
 export async function getSentimentTopicBreakdownByLLM(llmName: string) {
     return prisma.sentiment.groupBy({
         by: ['sentiment_name', 'sentiment_analysis'],
