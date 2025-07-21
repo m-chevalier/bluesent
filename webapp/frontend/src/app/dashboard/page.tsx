@@ -19,6 +19,10 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  const handleLLMClick = (llmName: string) => {
+    window.location.href = `/llm/${llmName}`
+  }
+
   const fetchStats = async () => {
     try {
       setLoading(true)
@@ -136,7 +140,7 @@ export default function DashboardPage() {
               <TableBody>
                 {stats.llmNames.map((llm, index) => (
                   <TableRow key={index}>
-                    <TableCell className="font-medium">{llm}</TableCell>
+                    <TableCell className="font-medium" onClick={() => handleLLMClick(llm)}>{llm}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

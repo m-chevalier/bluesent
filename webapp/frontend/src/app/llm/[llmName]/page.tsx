@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation';
 import { LlmStats } from '@/types';
 import { PostsTable } from '@/components/PostsTable';
 import { LoadingTable } from '@/components/LoadingTable';
-import { StatCard } from '@/components/StatCard';
 import { TopicList } from '@/components/TopicList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -74,7 +73,7 @@ export default function LlmStatsPage() {
             ))}
           </CardContent>
         </Card>
-        <TopicList topics={stats.sentimentStats} />
+        <TopicList sentimentTopicBreakdown={stats.sentimentTopicBreakdown} />
       </div>
 
       <div>

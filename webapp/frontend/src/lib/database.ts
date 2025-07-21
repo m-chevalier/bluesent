@@ -62,6 +62,22 @@ export async function getSentimentAnalysisByLLM() {
     });
 }
 
+
+export async function getSentimentTopicBreakdownByLLM(llmName: string) {
+    return prisma.sentiment.groupBy({
+        by: ['sentiment_name', 'sentiment_analysis'],
+        where: {
+            llm_name: llmName,
+            sentiment_analysis: {
+                in: ['positive', 'negative']
+            }
+        },
+        _count: {
+            sentiment_analysis: true
+        }
+    });
+}
+
 // Returns a list of unique LLM names from the postgres table
 export async function getListOfLLMs() {
 
@@ -77,4 +93,3 @@ export async function getListOfLLMs() {
         llmNames: result.map(item => item.llm_name),
     };
 }
-
