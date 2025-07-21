@@ -9,7 +9,7 @@ import random
 from enum import Enum
 
 topics = ["speed", "cost", "quality", "safety", "reliability", "performance", "coding_ability", "creativity", "privacy", "hallucination"]
-llms = ["chatGPT", "claude", "gemini", "bard", "llama", "mistral", "grok", "kimi", "qwen", "deepseek", "gemma", "minimax", "hunyuan"]
+llms = ["chatGPT", "claude", "gemini", "LLaMa", "mistral", "grok", "kimi k2", "qwen", "deepseek", "gemma", "minimax", "hunyuan"]
 
 LlmEnum = Enum('LlmEnum', {v: v for v in llms})
 
