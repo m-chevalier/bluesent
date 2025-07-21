@@ -51,7 +51,7 @@ export function Navbar() {
               <NavigationMenuList>
                 {navigation.map((item) => (
                   <NavigationMenuItem key={item.name}>
-                    <Link href={item.href} passHref>
+                    <Link href={item.href} legacyBehavior passHref>
                       <NavigationMenuLink
                         className={cn(
                           navigationMenuTriggerStyle(),
@@ -73,14 +73,14 @@ export function Navbar() {
               <span className="font-bold text-lg">BlueSent</span>
             </Link>
             {navigation.map((item) => (
-              <Link key={item.name} href={item.href}>
-                <Button
+              <Button
+                  key={item.name}
                   variant={pathname === item.href ? "default" : "ghost"}
                   size="sm"
+                  asChild
                 >
-                  {item.name}
+                  <Link href={item.href}>{item.name}</Link>
                 </Button>
-              </Link>
             ))}
           </div>
 
