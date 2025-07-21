@@ -43,7 +43,25 @@ export async function GET() {
     const rankedTopics = Object.entries(topics).map(([topicName, llms]) => {
       const rankedLlms = Object.entries(llms)
         .map(([llmName, counts]) => {
-          const score = (counts.positive + 1) / (counts.positive + counts.negative + 2);
+          const { positive, negative } = counts;
+          const n = positive + negative;
+
+          if (n === 0) {
+            return {
+              llmName,
+              score: 0,
+              ...counts,
+            };
+          }
+
+          const z = 1.96; // 95% confidence level
+          const p_hat = positive / n;
+          const score =
+            (p_hat +
+              (z * z) / (2 * n) -
+              z * Math.sqrt((p_hat * (1 - p_hat)) / n + (z * z) / (4 * n * n))) /
+            (1 + (z * z) / n);
+
           return {
             llmName,
             score,
