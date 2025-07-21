@@ -4,6 +4,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { SentimentProgressBar } from './SentimentProgressBar';
 
 interface SentimentBreakdownItem {
     sentiment_name: string;
@@ -63,19 +64,18 @@ export function TopicList({ sentimentTopicBreakdown }: TopicListProps) {
         <ul className="space-y-3">
           {processedTopics.map((topic, index) => (
             <li key={index} className="border-b pb-2 last:border-b-0">
-              <div className="flex justify-between items-center mb-1">
-                <span className="font-medium">{topic.sentiment_name}</span>
-                <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Total: {topic.total}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-green-600 dark:text-green-400">
-                  Positive: {topic.positive}
-                </span>
-                <span className="text-red-600 dark:text-red-400">
-                  Negative: {topic.negative}
-                </span>
+              <div className="flex justify-between items-center">
+                <div className="flex flex-col">
+                  <span className="font-medium">{topic.sentiment_name}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {topic.positive} pos, {topic.negative} neg ({topic.total} total)
+                  </span>
+                </div>
+                <SentimentProgressBar
+                  positive={topic.positive}
+                  negative={topic.negative}
+                  compact={true}
+                />
               </div>
             </li>
           ))}
