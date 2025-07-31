@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Comparative Evaluation Script
 Tests both few aspects (10) and full aspects (50) configurations on the same dataset

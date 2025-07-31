@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 LLM Name Standardization Utility
 Fixes case sensitivity issues between test data and model output

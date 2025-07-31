@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Scalability Test for Enrichment Agent
 Tests performance with increasing numbers of aspects
